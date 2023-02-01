@@ -11,30 +11,39 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
+    @Column(nullable = false)
     @NonNull
     private String genre;
 
+    @Column(nullable = false)
     @NonNull
     private String author;
 
+    @Column(nullable = false)
     @NonNull
     private String image;
 
+    @Column(nullable = false)
     @NonNull
     private String title;
 
+    @Column(nullable = false)
     @NonNull
     private String subtitle;
 
+    @Column(nullable = false)
     @NonNull
     private String publisher;
 
+    @Column(nullable = false)
     @NonNull
     private String years;
 
+    @Column(nullable = false)
     @NonNull
     private int pages;
 
+    @Column(nullable = false)
     @NonNull
     private String isbn;
 
