@@ -1,8 +1,19 @@
 package com.wolox.training.models;
 
 import com.wolox.training.exceptions.BookAlreadyOwnedException;
-import jakarta.persistence.*;
-import org.springframework.lang.NonNull;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -17,23 +28,23 @@ public class User {
     private long id;
 
     @Column(unique = true)
-    @NonNull
+    @NotEmpty
     private String username;
 
-    @NonNull
+    @NotEmpty
     private String name;
 
-    @NonNull
+    @Past
+    @NotEmpty
     private LocalDate birthdate;
 
-    @NonNull
-    @ManyToMany(cascade=CascadeType.ALL,fetch=FetchType.LAZY)
+    @ManyToMany(cascade= CascadeType.ALL,fetch= FetchType.LAZY)
     private List<Book> books;
 
     public User() {
     }
 
-    public User(long id, @NonNull String username, @NonNull String name, @NonNull LocalDate birthdate, @NonNull List<Book> books) {
+    public User(long id, String username, String name, LocalDate birthdate, List<Book> books) {
         this.id = id;
         username = username;
         name = name;
@@ -45,41 +56,34 @@ public class User {
         return id;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    @NonNull
     public String getUsername() {
         return username;
     }
 
-    public void setUsername(@NonNull String username) {
+    public void setUsername(String username) {
         username = username;
     }
 
-    @NonNull
     public String getName() {
         return name;
     }
 
-    public void setName(@NonNull String name) {
+    public void setName(String name) {
         name = name;
     }
 
-    @NonNull
     public LocalDate getBirthdate() {
         return birthdate;
     }
 
-    public void setBirthdate(@NonNull LocalDate birthdate) {
+    public void setBirthdate(LocalDate birthdate) {
         birthdate = birthdate;
     }
 
-    @NonNull
     public List<Book> getBooks() {
         return (List<Book>) Collections.unmodifiableList(books);
     }
+
 
     public List<Book> addBook(Book book){
         if(this.books.indexOf(book) != -1){
