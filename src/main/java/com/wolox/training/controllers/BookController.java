@@ -19,9 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-
-import java.util.List;
-
 @Controller
 @RequestMapping("/api/books")
 public class BookController {
@@ -29,7 +26,12 @@ public class BookController {
     @Autowired
     private BookRepository bookRepository;
 
-
+    /**
+     * save the received book
+     * @param book book to be saved
+     * @exception BookRepeatedTitleException when the book title is already in the database.
+     * @return the book saved
+     */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Book create(@RequestBody Book book) {
@@ -39,12 +41,25 @@ public class BookController {
         return bookRepository.save(book);
     }
 
+    /**
+     * delete the book searched by id
+     * @param id to find the book
+     * @exception BookNotFoundException when the book was not found
+     */
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
         bookRepository.findById(id).orElseThrow(BookNotFoundException::new);
         bookRepository.deleteById(id);
     }
 
+    /**
+     * update the book in the database with the received book
+     * @param book to be updated
+     * @param id to search for the book to update
+     * @exception BookIdMismatchException if the book does not match the id
+     * @exception BookNotFoundException when the book was not found
+     * @return the book updated
+     */
     @PutMapping("/{id}")
     public Book updateBook(@RequestBody Book book, @PathVariable Long id) {
         if (book.getId() != id) {
@@ -59,6 +74,12 @@ public class BookController {
         return bookRepository.findAll();
     }
 
+    /**
+     * find for a book by id
+     * @param id to search for the book
+     * @exception  BookNotFoundException when the book was not found
+     * @return the found book
+     */
     @GetMapping("/{id}")
     public Book findOne(@PathVariable Long id) {
         return bookRepository.findById(id).orElseThrow(BookNotFoundException::new);
