@@ -1,7 +1,5 @@
 package com.wolox.training.exceptions;
 
-import com.wolox.training.exceptions.BookIdMismatchException;
-import com.wolox.training.exceptions.BookNotFoundException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpHeaders;
