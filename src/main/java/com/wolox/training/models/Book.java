@@ -1,7 +1,14 @@
 package com.wolox.training.models;
 
-import jakarta.persistence.*;
-import org.springframework.lang.NonNull;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import org.jetbrains.annotations.NotNull;
+
+
 
 @Entity
 @Table(name = "books")
@@ -12,39 +19,39 @@ public class Book {
     private long id;
 
     @Column(nullable = false)
-    @NonNull
+    @NotNull
     private String genre;
 
     @Column(nullable = false)
-    @NonNull
+    @NotNull
     private String author;
 
     @Column(nullable = false)
-    @NonNull
+    @NotNull
     private String image;
 
     @Column(nullable = false)
-    @NonNull
+    @NotNull
     private String title;
 
     @Column(nullable = false)
-    @NonNull
+    @NotNull
     private String subtitle;
 
     @Column(nullable = false)
-    @NonNull
+    @NotNull
     private String publisher;
 
     @Column(nullable = false)
-    @NonNull
+    @NotNull
     private String years;
 
     @Column(nullable = false)
-    @NonNull
+    @NotNull
     private int pages;
 
     @Column(nullable = false)
-    @NonNull
+    @NotNull
     private String isbn;
 
     public Book() {
@@ -65,10 +72,6 @@ public class Book {
 
     public long getId() {
         return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
     }
 
     public String getGenre() {
