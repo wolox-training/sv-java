@@ -22,7 +22,6 @@ import java.util.List;
  * This class is used to define a user
  * @author Varela Susana
  * @version 1.0
- * @see Book class
  */
 @Entity
 @Table(name = "users")
