@@ -11,16 +11,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-<<<<<<< HEAD
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Past;
-=======
 import jakarta.validation.constraints.NotBlank;
-<<<<<<< HEAD
->>>>>>> 841638828905f73945e5b0c6539ad8088a30e372
-=======
 import jakarta.validation.constraints.NotNull;
->>>>>>> ac3e40e600385b642eb8057c1227188972802c8f
+
 
 import java.time.LocalDate;
 import java.util.Collections;
