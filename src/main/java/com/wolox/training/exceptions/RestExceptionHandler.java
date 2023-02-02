@@ -32,4 +32,9 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> bookAlreadyOwned(Exception ex, WebRequest request) {
         return handleExceptionInternal(ex, "the book is already on the list", new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
+
+    @ExceptionHandler({ UserUsernameRepeatedException.class })
+    public ResponseEntity<Object> duplicateUsername(Exception ex, WebRequest request) {
+        return handleExceptionInternal(ex, "the username is already registered", new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
 }

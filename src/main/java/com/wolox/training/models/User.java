@@ -1,5 +1,7 @@
 package com.wolox.training.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wolox.training.exceptions.BookAlreadyOwnedException;
 
 import jakarta.persistence.CascadeType;
@@ -12,6 +14,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 
 import java.time.LocalDate;
@@ -38,11 +41,12 @@ public class User {
     @NotEmpty
     private String name;
 
+    @JsonProperty("birthdate")
     @Past
-    @NotEmpty
+    @NotNull
     private LocalDate birthdate;
 
-    @ManyToMany(cascade= CascadeType.ALL,fetch= FetchType.LAZY)
+    @ManyToMany(fetch= FetchType.LAZY)
     private List<Book> books;
 
     public User() {
