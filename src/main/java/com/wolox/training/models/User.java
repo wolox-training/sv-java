@@ -1,9 +1,6 @@
 package com.wolox.training.models;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wolox.training.exceptions.BookAlreadyOwnedException;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,10 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Past;
-
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -34,19 +29,20 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @Column(unique = true)
-    @NotEmpty
+    @Column(nullable = false, unique = true)
+    @NotBlank
     private String username;
 
-    @NotEmpty
+    @Column(nullable = false)
+    @NotBlank
     private String name;
 
-    @JsonProperty("birthdate")
-    @Past
+    @Column(nullable = false)
     @NotNull
     private LocalDate birthdate;
 
-    @ManyToMany(fetch= FetchType.LAZY)
+
+    @ManyToMany(cascade= {CascadeType.REFRESH, CascadeType.MERGE} ,fetch= FetchType.LAZY)
     private List<Book> books;
 
     public User() {
@@ -99,7 +95,7 @@ public class User {
      * @return list with added book
      */
     public List<Book> addBook(Book book){
-        if(this.books.indexOf(book) != -1){
+        if(this.books.indexOf(book) == -1){
             this.books.add(book);
         }else{
             throw new BookAlreadyOwnedException();
