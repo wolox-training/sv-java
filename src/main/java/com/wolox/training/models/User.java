@@ -14,10 +14,16 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
+
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * This class is used to define a user
+ * @author Varela Susana
+ * @version 1.0
+ */
 @Entity
 @Table(name = "users")
 public class User {
@@ -85,7 +91,12 @@ public class User {
         return (List<Book>) Collections.unmodifiableList(books);
     }
 
-
+    /**
+     * add the received book to the list
+     * @param book book to be added
+     * @exception BookAlreadyOwnedException when the book is already on the list
+     * @return list with added book
+     */
     public List<Book> addBook(Book book){
         if(this.books.indexOf(book) == -1){
             this.books.add(book);
@@ -95,6 +106,11 @@ public class User {
         return this.books;
     }
 
+    /**
+     * search and remove the book from the list
+     * @param book book to remove from list
+     * @return boolean true if it was removed or false if not found
+     */
     public boolean removeBook(Book book){
         int pos = this.books.indexOf(book);
         boolean removed = false;

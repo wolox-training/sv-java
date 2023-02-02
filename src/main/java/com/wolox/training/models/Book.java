@@ -8,7 +8,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
-
+/**
+ * This class is used to define a book
+ * @author Varela Susana
+ * @version 1.0
+ */
 @Entity
 @Table(name = "books")
 public class Book {
