@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -34,7 +35,7 @@ public class User {
     private String name;
 
     @Column(nullable = false)
-    @NotBlank
+    @NotNull
     private LocalDate birthdate;
 
 
