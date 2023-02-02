@@ -27,4 +27,9 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> duplicateTitle(Exception ex, WebRequest request) {
         return handleExceptionInternal(ex, "the title is not valid", new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
+
+    @ExceptionHandler({ BookAlreadyOwnedException.class })
+    public ResponseEntity<Object> bookAlreadyOwned(Exception ex, WebRequest request) {
+        return handleExceptionInternal(ex, "the book is already on the list", new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
 }
