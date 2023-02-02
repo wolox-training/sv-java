@@ -2,6 +2,7 @@ package com.wolox.training.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wolox.training.exceptions.BookAlreadyOwnedException;
+import com.wolox.training.exceptions.BookNotFoundException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -110,13 +111,13 @@ public class User {
      * @param book book to remove from list
      * @return boolean true if it was removed or false if not found
      */
-    public boolean removeBook(Book book){
+    public List<Book> removeBook(Book book){
         int pos = this.books.indexOf(book);
-        boolean removed = false;
         if(pos != -1){
             this.books.remove(pos);
-            removed = true;
+        }else{
+            throw new BookNotFoundException();
         }
-        return removed;
+        return this.books;
     }
 }

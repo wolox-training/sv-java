@@ -5,7 +5,9 @@ import com.wolox.training.exceptions.BookNotFoundException;
 import com.wolox.training.exceptions.BookRepeatedTitleException;
 import com.wolox.training.exceptions.UserNotFoundException;
 import com.wolox.training.exceptions.UserUsernameRepeatedException;
+import com.wolox.training.models.Book;
 import com.wolox.training.models.User;
+import com.wolox.training.repositories.BookRepository;
 import com.wolox.training.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +30,9 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private BookRepository bookRepository;
+
     /**
      * save the received user
      * @param user user to be saved
@@ -36,7 +41,6 @@ public class UserController {
      */
     @PostMapping
     public ResponseEntity<Object> create(@RequestBody User user) {
-        System.out.println(user.getName());
         if(userRepository.findByUsername(user.getUsername()) != null){
             throw new UserUsernameRepeatedException();
         }
@@ -78,8 +82,12 @@ public class UserController {
         if(userRepository.findByUsername(user.getUsername()) != null){
             throw new UserUsernameRepeatedException();
         }
-        userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        userRepository.save(user);
+        User addUser = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        addUser.setUsername(user.getUsername());
+        addUser.setBirthdate(user.getBirthdate());
+        addUser.setName(user.getName());
+
+        userRepository.save(addUser);
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
@@ -93,6 +101,37 @@ public class UserController {
         return new ResponseEntity<>(userRepository.findById(id).orElseThrow(UserNotFoundException::new), HttpStatus.OK);
     }
 
-    //agregar libro
-    //quitar libro
+    /**
+     * add the received book to the list books
+     * @param book  book to be added
+     * @param id To find the user who owns the list
+     * @exception UserNotFoundException when user was not found
+     * @exception BookNotFoundException when the book was not found
+     * @return user updated
+     */
+    @PostMapping("addbook/{id}")
+    public ResponseEntity<Object> addBook(@RequestBody Book book, @PathVariable Long id) {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        Optional<Book> addBook = bookRepository.findById(book.getId());
+        if(!addBook.isPresent()){
+            throw new BookNotFoundException();
+        }
+        user.addBook(addBook.get());
+        return new ResponseEntity<>( userRepository.save(user), HttpStatus.OK);
+    }
+
+    /**
+     * Identical to the add endpoint but it removes the book
+     */
+    @PostMapping("removebook/{id}")
+    public ResponseEntity<Object> removeBook(@RequestBody Book book, @PathVariable Long id) {
+        User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
+        Optional<Book> removeBook = bookRepository.findById(book.getId());
+        if(!removeBook.isPresent()){
+            throw new BookNotFoundException();
+        }
+        user.removeBook(removeBook.get());
+        return new ResponseEntity<>( userRepository.save(user), HttpStatus.OK);
+    }
+
 }
