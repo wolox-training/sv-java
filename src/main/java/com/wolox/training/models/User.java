@@ -11,8 +11,12 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+<<<<<<< HEAD
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Past;
+=======
+import jakarta.validation.constraints.NotBlank;
+>>>>>>> 841638828905f73945e5b0c6539ad8088a30e372
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -31,18 +35,20 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @Column(unique = true)
-    @NotEmpty
+    @Column(nullable = false, unique = true)
+    @NotBlank
     private String username;
 
-    @NotEmpty
+    @Column(nullable = false)
+    @NotBlank
     private String name;
 
-    @Past
-    @NotEmpty
+    @Column(nullable = false)
+    @NotBlank
     private LocalDate birthdate;
 
-    @ManyToMany(cascade= CascadeType.ALL,fetch= FetchType.LAZY)
+
+    @ManyToMany(cascade= {CascadeType.REFRESH, CascadeType.MERGE} ,fetch= FetchType.LAZY)
     private List<Book> books;
 
     public User() {
@@ -95,7 +101,7 @@ public class User {
      * @return list with added book
      */
     public List<Book> addBook(Book book){
-        if(this.books.indexOf(book) != -1){
+        if(this.books.indexOf(book) == -1){
             this.books.add(book);
         }else{
             throw new BookAlreadyOwnedException();
