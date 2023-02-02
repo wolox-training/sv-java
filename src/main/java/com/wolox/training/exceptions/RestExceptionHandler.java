@@ -37,4 +37,9 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     public ResponseEntity<Object> duplicateUsername(Exception ex, WebRequest request) {
         return handleExceptionInternal(ex, "the username is already registered", new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
+
+    @ExceptionHandler({ UserNotFoundException.class })
+    protected ResponseEntity<Object> handleUserNotFound(Exception ex, WebRequest request) {
+        return handleExceptionInternal(ex, "User not found", new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+    }
 }

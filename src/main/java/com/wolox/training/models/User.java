@@ -1,5 +1,6 @@
 package com.wolox.training.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wolox.training.exceptions.BookAlreadyOwnedException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -37,6 +38,7 @@ public class User {
     @NotBlank
     private String name;
 
+    @JsonFormat(pattern = "dd-MM-yyyy")
     @Column(nullable = false)
     @NotNull
     private LocalDate birthdate;
@@ -50,9 +52,9 @@ public class User {
 
     public User(long id, String username, String name, LocalDate birthdate, List<Book> books) {
         this.id = id;
-        username = username;
-        name = name;
-        birthdate = birthdate;
+        this.username = username;
+        this.name = name;
+        this.birthdate = birthdate;
         this.books = books;
     }
 
@@ -65,7 +67,7 @@ public class User {
     }
 
     public void setUsername(String username) {
-        username = username;
+        this.username = username;
     }
 
     public String getName() {
@@ -73,7 +75,7 @@ public class User {
     }
 
     public void setName(String name) {
-        name = name;
+        this.name = name;
     }
 
     public LocalDate getBirthdate() {
@@ -81,7 +83,7 @@ public class User {
     }
 
     public void setBirthdate(LocalDate birthdate) {
-        birthdate = birthdate;
+        this.birthdate = birthdate;
     }
 
     public List<Book> getBooks() {
