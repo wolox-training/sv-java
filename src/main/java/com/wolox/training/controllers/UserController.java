@@ -2,15 +2,22 @@ package com.wolox.training.controllers;
 
 import com.wolox.training.exceptions.BookIdMismatchException;
 import com.wolox.training.exceptions.BookNotFoundException;
-import com.wolox.training.exceptions.BookRepeatedTitleException;
 import com.wolox.training.exceptions.UserNotFoundException;
 import com.wolox.training.exceptions.UserUsernameRepeatedException;
 import com.wolox.training.models.Book;
 import com.wolox.training.models.User;
 import com.wolox.training.repositories.BookRepository;
 import com.wolox.training.repositories.UserRepository;
+
+import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,6 +46,11 @@ public class UserController {
      * @exception UserUsernameRepeatedException when the username is already in the database.
      * @return the user saved
      */
+    @Operation(summary = "Create a user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "successfully created"),
+            @ApiResponse(responseCode = "400", description = "User could not be created")
+        })
     @PostMapping
     public ResponseEntity<Object> create(@RequestBody User user) {
         if(userRepository.findByUsername(user.getUsername()) != null){
@@ -47,6 +59,10 @@ public class UserController {
         return new ResponseEntity<>( userRepository.save(user), HttpStatus.CREATED);
     }
 
+    @Operation(summary = "Delete a user")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "User was deleted successfully"),
+            @ApiResponse(responseCode = "404", description = "User was not found") })
     /**
      * delete user searched by id
      * @param id to find user
