@@ -51,8 +51,7 @@ public class User {
     public User() {
     }
 
-    public User(long id, String username, String name, LocalDate birthdate, List<Book> books) {
-        this.id = id;
+    public User(String username, String name, LocalDate birthdate, List<Book> books) {
         this.username = username;
         this.name = name;
         this.birthdate = birthdate;
