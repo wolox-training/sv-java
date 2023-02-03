@@ -9,15 +9,12 @@ import com.wolox.training.models.User;
 import com.wolox.training.repositories.BookRepository;
 import com.wolox.training.repositories.UserRepository;
 
-import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -48,8 +45,8 @@ public class UserController {
      */
     @Operation(summary = "Create a user")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "successfully created"),
-            @ApiResponse(responseCode = "400", description = "User could not be created")
+            @ApiResponse(code = 201, message = "Successfully created"),
+            @ApiResponse(code = 400, message = "User could not be created")
         })
     @PostMapping
     public ResponseEntity<Object> create(@RequestBody User user) {
@@ -59,18 +56,20 @@ public class UserController {
         return new ResponseEntity<>( userRepository.save(user), HttpStatus.CREATED);
     }
 
-    @Operation(summary = "Delete a user")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "User was deleted successfully"),
-            @ApiResponse(responseCode = "404", description = "User was not found") })
+
     /**
      * delete user searched by id
      * @param id to find user
      * @exception UserNotFoundException when user was not found
      * @return String is a descriptive text
      */
+    @Operation(summary = "Delete a user")
+    @ApiResponses(value = {
+            @ApiResponse(code = 201, message = "User was deleted successfully"),
+            @ApiResponse(code = 404, message = "User was not found")
+    })
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> delete(@PathVariable Long id) {
+    public ResponseEntity<String> delete(@PathVariable Long id) {
       Optional<User> user = userRepository.findById(id);
         if(user.isPresent()){
             userRepository.deleteById(id);
@@ -78,7 +77,6 @@ public class UserController {
         }else{
            throw new UserNotFoundException();
         }
-
     }
 
     /**
@@ -90,6 +88,13 @@ public class UserController {
      * @exception UserNotFoundException when user was not found
      * @return user updated
      */
+    @Operation(summary = "Update a user")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "updated successfully"),
+            @ApiResponse(code = 404, message = "User not found"),
+            @ApiResponse(code = 400, message = "If user does not match the id or the username is already registered")
+
+    })
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateUser(@RequestBody User user, @PathVariable Long id) {
         if (user.getId() != id) {
@@ -107,11 +112,15 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    @Operation(summary = "List all users")
+    @ApiResponse(code = 200, message = "All users successfully")
     @GetMapping
     public ResponseEntity<Object> findAll() {
         return new ResponseEntity<>( userRepository.findAll(), HttpStatus.OK);
     }
 
+    @Operation(summary = "Find a user identified by id")
+    @ApiResponse(code = 200, message = "Get user successfully")
     @GetMapping("/{id}")
     public ResponseEntity<Object> findOne(@PathVariable Long id) {
         return new ResponseEntity<>(userRepository.findById(id).orElseThrow(UserNotFoundException::new), HttpStatus.OK);
@@ -125,6 +134,11 @@ public class UserController {
      * @exception BookNotFoundException when the book was not found
      * @return user updated
      */
+    @Operation(summary = "Add book to book list")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Book added successfully"),
+            @ApiResponse(code = 404, message = "User not found or Book not found")
+    })
     @PostMapping("addbook/{id}")
     public ResponseEntity<Object> addBook(@RequestBody Book book, @PathVariable Long id) {
         User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
@@ -139,6 +153,11 @@ public class UserController {
     /**
      * Identical to the add endpoint but it removes the book
      */
+    @Operation(summary = "Remove book to book list")
+    @ApiResponses(value = {
+            @ApiResponse(code = 200, message = "Book removed successfully"),
+            @ApiResponse(code = 404, message = "User not found or Book not found")
+    })
     @PostMapping("removebook/{id}")
     public ResponseEntity<Object> removeBook(@RequestBody Book book, @PathVariable Long id) {
         User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
@@ -149,5 +168,6 @@ public class UserController {
         user.removeBook(removeBook.get());
         return new ResponseEntity<>( userRepository.save(user), HttpStatus.OK);
     }
+
 
 }

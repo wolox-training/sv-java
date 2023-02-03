@@ -44,7 +44,6 @@ public class User {
     @NotNull
     private LocalDate birthdate;
 
-
     @ManyToMany(cascade= {CascadeType.REFRESH, CascadeType.MERGE} ,fetch= FetchType.LAZY)
     private List<Book> books;
 
