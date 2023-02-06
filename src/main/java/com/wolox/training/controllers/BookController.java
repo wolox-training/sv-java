@@ -1,6 +1,6 @@
 package com.wolox.training.controllers;
 
-import com.wolox.training.exceptions.BookIdMismatchException;
+import com.wolox.training.exceptions.ObjectIdMismatchException;
 import com.wolox.training.exceptions.BookNotFoundException;
 import com.wolox.training.exceptions.BookRepeatedTitleException;
 import com.wolox.training.models.Book;
@@ -56,14 +56,14 @@ public class BookController {
      * update the book in the database with the received book
      * @param book to be updated
      * @param id to search for the book to update
-     * @exception BookIdMismatchException if the book does not match the id
+     * @exception ObjectIdMismatchException if the book does not match the id
      * @exception BookNotFoundException when the book was not found
      * @return the book updated
      */
     @PutMapping("/{id}")
     public Book updateBook(@RequestBody Book book, @PathVariable Long id) {
         if (book.getId() != id) {
-            throw new BookIdMismatchException();
+            throw new ObjectIdMismatchException();
         }
         bookRepository.findById(id).orElseThrow(BookNotFoundException::new);
         return bookRepository.save(book);

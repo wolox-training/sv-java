@@ -1,6 +1,6 @@
 package com.wolox.training.controllers;
 
-import com.wolox.training.exceptions.BookIdMismatchException;
+import com.wolox.training.exceptions.ObjectIdMismatchException;
 import com.wolox.training.exceptions.BookNotFoundException;
 import com.wolox.training.exceptions.UserNotFoundException;
 import com.wolox.training.exceptions.UserUsernameRepeatedException;
@@ -57,7 +57,7 @@ public class UserController {
     })
     @PostMapping
     public ResponseEntity<Object> create(@RequestBody User user) {
-        if(userRepository.findByUsername(user.getUsername()) != null){
+        if(userRepository.findByUsername(user.getUsername()).isPresent()){
             throw new UserUsernameRepeatedException();
         }
         return new ResponseEntity<>( userRepository.save(user), HttpStatus.CREATED);
@@ -90,7 +90,6 @@ public class UserController {
      * update user in the database with the received user
      * @param user to be updated
      * @param id to search for user to update
-     * @exception BookIdMismatchException if user does not match the id, modified message
      * @exception UserUsernameRepeatedException when the username is already in the database.
      * @exception UserNotFoundException when user was not found
      * @return user updated
@@ -104,19 +103,17 @@ public class UserController {
     })
     @PutMapping("/{id}")
     public ResponseEntity<Object> updateUser(@RequestBody User user, @PathVariable Long id) {
-        if (user.getId() != id) {
-            throw new BookIdMismatchException("The id does not match the request");
-        }
-        if(userRepository.findByUsername(user.getUsername()) != null){
-            throw new UserUsernameRepeatedException();
-        }
         User addUser = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        addUser.setUsername(user.getUsername());
+
+        if(!addUser.getUsername().equalsIgnoreCase(user.getUsername())){
+            if(userRepository.findByUsername(user.getUsername()).isPresent()) {
+                throw new UserUsernameRepeatedException();
+            }
+            addUser.setUsername(user.getUsername());
+        }
         addUser.setBirthdate(user.getBirthdate());
         addUser.setName(user.getName());
-
-        userRepository.save(addUser);
-        return new ResponseEntity<>(user, HttpStatus.OK);
+        return new ResponseEntity<>(userRepository.save(addUser), HttpStatus.OK);
     }
 
     @Operation(summary = "List all users")
@@ -149,11 +146,9 @@ public class UserController {
     @PostMapping("addbook/{id}")
     public ResponseEntity<Object> addBook(@RequestBody Book book, @PathVariable Long id) {
         User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        Optional<Book> addBook = bookRepository.findById(book.getId());
-        if(!addBook.isPresent()){
-            throw new BookNotFoundException();
-        }
-        user.addBook(addBook.get());
+        Book addBook = bookRepository.findById(book.getId()).orElseThrow(BookNotFoundException::new);
+
+        user.addBook(addBook);
         return new ResponseEntity<>( userRepository.save(user), HttpStatus.OK);
     }
 
@@ -168,11 +163,9 @@ public class UserController {
     @PostMapping("removebook/{id}")
     public ResponseEntity<Object> removeBook(@RequestBody Book book, @PathVariable Long id) {
         User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        Optional<Book> removeBook = bookRepository.findById(book.getId());
-        if(!removeBook.isPresent()){
-            throw new BookNotFoundException();
-        }
-        user.removeBook(removeBook.get());
+       Book removeBook =bookRepository.findById(book.getId()).orElseThrow(BookNotFoundException::new);
+
+        user.removeBook(removeBook);
         return new ResponseEntity<>( userRepository.save(user), HttpStatus.OK);
     }
 
