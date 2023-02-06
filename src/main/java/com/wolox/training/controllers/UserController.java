@@ -1,6 +1,5 @@
 package com.wolox.training.controllers;
 
-import com.wolox.training.exceptions.ObjectIdMismatchException;
 import com.wolox.training.exceptions.BookNotFoundException;
 import com.wolox.training.exceptions.UserNotFoundException;
 import com.wolox.training.exceptions.UserUsernameRepeatedException;
@@ -8,13 +7,6 @@ import com.wolox.training.models.Book;
 import com.wolox.training.models.User;
 import com.wolox.training.repositories.BookRepository;
 import com.wolox.training.repositories.UserRepository;
-
-/*
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-*/
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

@@ -5,7 +5,6 @@ import com.wolox.training.exceptions.BookAlreadyOwnedException;
 import com.wolox.training.exceptions.BookNotFoundException;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.media.SchemaProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -17,7 +16,6 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.time.LocalDate;
 import java.util.Collections;
