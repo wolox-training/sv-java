@@ -108,11 +108,9 @@ public class UserController {
     @PostMapping("addbook/{id}")
     public ResponseEntity<Object> addBook(@RequestBody Book book, @PathVariable Long id) {
         User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        Optional<Book> addBook = bookRepository.findById(book.getId());
-        if(!addBook.isPresent()){
-            throw new BookNotFoundException();
-        }
-        user.addBook(addBook.get());
+        Book addBook = bookRepository.findById(book.getId()).orElseThrow(BookNotFoundException::new);
+
+        user.addBook(addBook);
         return new ResponseEntity<>( userRepository.save(user), HttpStatus.OK);
     }
 
@@ -122,11 +120,9 @@ public class UserController {
     @PostMapping("removebook/{id}")
     public ResponseEntity<Object> removeBook(@RequestBody Book book, @PathVariable Long id) {
         User user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
-        Optional<Book> removeBook = bookRepository.findById(book.getId());
-        if(!removeBook.isPresent()){
-            throw new BookNotFoundException();
-        }
-        user.removeBook(removeBook.get());
+       Book removeBook =bookRepository.findById(book.getId()).orElseThrow(BookNotFoundException::new);
+
+        user.removeBook(removeBook);
         return new ResponseEntity<>( userRepository.save(user), HttpStatus.OK);
     }
 
