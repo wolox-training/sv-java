@@ -9,10 +9,11 @@ import com.wolox.training.models.User;
 import com.wolox.training.repositories.BookRepository;
 import com.wolox.training.repositories.UserRepository;
 
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,8 +46,8 @@ public class UserController {
      */
     @Operation(summary = "Create a user")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "Successfully created"),
-            @ApiResponse(code = 400, message = "User could not be created")
+            @ApiResponse(responseCode = "201", description = "Successfully created",  content = @Content),
+            @ApiResponse(responseCode = "400", description = "User could not be created",  content = @Content)
         })
     @PostMapping
     public ResponseEntity<Object> create(@RequestBody User user) {
@@ -63,10 +64,10 @@ public class UserController {
      * @exception UserNotFoundException when user was not found
      * @return String is a descriptive text
      */
-    @Operation(summary = "Delete a user")
+   /* @Operation(summary = "Delete a user")
     @ApiResponses(value = {
-            @ApiResponse(code = 201, message = "User was deleted successfully"),
-            @ApiResponse(code = 404, message = "User was not found")
+            @ApiResponse(responseCode = "201", description = "User was deleted successfully", content = @Content),
+            @ApiResponse(responseCode = "404", description = "User was not found", content = @Content)
     })
     @DeleteMapping("/{id}")
     public ResponseEntity<String> delete(@PathVariable Long id) {
@@ -77,7 +78,7 @@ public class UserController {
         }else{
            throw new UserNotFoundException();
         }
-    }
+    }*/
 
     /**
      * update user in the database with the received user
@@ -88,7 +89,7 @@ public class UserController {
      * @exception UserNotFoundException when user was not found
      * @return user updated
      */
-    @Operation(summary = "Update a user")
+   /* @Operation(summary = "Update a user")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "updated successfully"),
             @ApiResponse(code = 404, message = "User not found"),
@@ -125,7 +126,7 @@ public class UserController {
     public ResponseEntity<Object> findOne(@PathVariable Long id) {
         return new ResponseEntity<>(userRepository.findById(id).orElseThrow(UserNotFoundException::new), HttpStatus.OK);
     }
-
+*/
     /**
      * add the received book to the list books
      * @param book  book to be added
@@ -134,7 +135,7 @@ public class UserController {
      * @exception BookNotFoundException when the book was not found
      * @return user updated
      */
-    @Operation(summary = "Add book to book list")
+ /*   @Operation(summary = "Add book to book list")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Book added successfully"),
             @ApiResponse(code = 404, message = "User not found or Book not found")
@@ -149,11 +150,11 @@ public class UserController {
         user.addBook(addBook.get());
         return new ResponseEntity<>( userRepository.save(user), HttpStatus.OK);
     }
-
+*/
     /**
      * Identical to the add endpoint but it removes the book
      */
-    @Operation(summary = "Remove book to book list")
+ /*   @Operation(summary = "Remove book to book list")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Book removed successfully"),
             @ApiResponse(code = 404, message = "User not found or Book not found")
@@ -168,6 +169,6 @@ public class UserController {
         user.removeBook(removeBook.get());
         return new ResponseEntity<>( userRepository.save(user), HttpStatus.OK);
     }
-
+*/
 
 }

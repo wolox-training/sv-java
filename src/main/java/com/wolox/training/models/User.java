@@ -3,6 +3,7 @@ package com.wolox.training.models;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wolox.training.exceptions.BookAlreadyOwnedException;
 import com.wolox.training.exceptions.BookNotFoundException;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,6 +15,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +25,7 @@ import java.util.List;
  * @author Varela Susana
  * @version 1.0
  */
+
 @Entity
 @Table(name = "users")
 public class User {
