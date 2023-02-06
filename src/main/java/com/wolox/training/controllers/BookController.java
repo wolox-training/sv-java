@@ -7,6 +7,7 @@ import com.wolox.training.models.Book;
 import com.wolox.training.repositories.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -34,11 +35,11 @@ public class BookController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Book create(@RequestBody Book book) {
+    public ResponseEntity<Object>  create(@RequestBody Book book) {
         if(!bookRepository.findByTitle(book.getTitle()).isEmpty()){
             throw new BookRepeatedTitleException();
         }
-        return bookRepository.save(book);
+        return new ResponseEntity<>(bookRepository.save(book), HttpStatus.CREATED);
     }
 
     /**
@@ -61,17 +62,17 @@ public class BookController {
      * @return the book updated
      */
     @PutMapping("/{id}")
-    public Book updateBook(@RequestBody Book book, @PathVariable Long id) {
+    public ResponseEntity<Object> updateBook(@RequestBody Book book, @PathVariable Long id) {
         if (book.getId() != id) {
             throw new ObjectIdMismatchException();
         }
         bookRepository.findById(id).orElseThrow(BookNotFoundException::new);
-        return bookRepository.save(book);
+        return new ResponseEntity<>(bookRepository.save(book), HttpStatus.OK);
     }
 
     @GetMapping
-    public Iterable findAll() {
-        return bookRepository.findAll();
+    public ResponseEntity<Object> findAll() {
+        return  new ResponseEntity<>(bookRepository.findAll(), HttpStatus.OK);
     }
 
     /**
@@ -81,8 +82,8 @@ public class BookController {
      * @return the found book
      */
     @GetMapping("/{id}")
-    public Book findOne(@PathVariable Long id) {
-        return bookRepository.findById(id).orElseThrow(BookNotFoundException::new);
+    public ResponseEntity<Object> findOne(@PathVariable Long id) {
+        return new ResponseEntity<>(bookRepository.findById(id).orElseThrow(BookNotFoundException::new), HttpStatus.OK);
     }
 
     @GetMapping("/greeting")
