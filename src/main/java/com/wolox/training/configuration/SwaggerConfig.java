@@ -1,5 +1,5 @@
 package com.wolox.training.configuration;
-
+/*
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
 import org.springdoc.core.GroupedOpenApi;
@@ -23,4 +23,6 @@ public class SwaggerConfig {
                         .description("Training Susana")
                         .version("v0.0.1"));
     }
+
 }
+*/

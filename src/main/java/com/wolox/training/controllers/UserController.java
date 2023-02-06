@@ -9,6 +9,12 @@ import com.wolox.training.models.User;
 import com.wolox.training.repositories.BookRepository;
 import com.wolox.training.repositories.UserRepository;
 
+/*
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+*/
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -46,9 +52,9 @@ public class UserController {
      */
     @Operation(summary = "Create a user")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Successfully created",  content = @Content),
-            @ApiResponse(responseCode = "400", description = "User could not be created",  content = @Content)
-        })
+            @ApiResponse(responseCode = "201", description = "Successfully created", content = @Content),
+            @ApiResponse(responseCode = "400", description = "User could not be created", content = @Content)
+    })
     @PostMapping
     public ResponseEntity<Object> create(@RequestBody User user) {
         if(userRepository.findByUsername(user.getUsername()) != null){
@@ -64,7 +70,7 @@ public class UserController {
      * @exception UserNotFoundException when user was not found
      * @return String is a descriptive text
      */
-   /* @Operation(summary = "Delete a user")
+   @Operation(summary = "Delete a user")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "User was deleted successfully", content = @Content),
             @ApiResponse(responseCode = "404", description = "User was not found", content = @Content)
@@ -78,7 +84,7 @@ public class UserController {
         }else{
            throw new UserNotFoundException();
         }
-    }*/
+    }
 
     /**
      * update user in the database with the received user
@@ -89,11 +95,11 @@ public class UserController {
      * @exception UserNotFoundException when user was not found
      * @return user updated
      */
-   /* @Operation(summary = "Update a user")
+    @Operation(summary = "Update a user")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "updated successfully"),
-            @ApiResponse(code = 404, message = "User not found"),
-            @ApiResponse(code = 400, message = "If user does not match the id or the username is already registered")
+            @ApiResponse(responseCode = "200", description = "updated successfully", content = @Content),
+            @ApiResponse(responseCode = "404", description = "User not found", content = @Content),
+            @ApiResponse(responseCode = "400", description = "If user does not match the id or the username is already registered", content = @Content)
 
     })
     @PutMapping("/{id}")
@@ -114,19 +120,19 @@ public class UserController {
     }
 
     @Operation(summary = "List all users")
-    @ApiResponse(code = 200, message = "All users successfully")
+    @ApiResponse(responseCode = "200", description = "All users successfully", content = @Content)
     @GetMapping
     public ResponseEntity<Object> findAll() {
         return new ResponseEntity<>( userRepository.findAll(), HttpStatus.OK);
     }
 
     @Operation(summary = "Find a user identified by id")
-    @ApiResponse(code = 200, message = "Get user successfully")
+    @ApiResponse(responseCode = "200", description = "Get user successfully", content = @Content)
     @GetMapping("/{id}")
     public ResponseEntity<Object> findOne(@PathVariable Long id) {
         return new ResponseEntity<>(userRepository.findById(id).orElseThrow(UserNotFoundException::new), HttpStatus.OK);
     }
-*/
+
     /**
      * add the received book to the list books
      * @param book  book to be added
@@ -135,10 +141,10 @@ public class UserController {
      * @exception BookNotFoundException when the book was not found
      * @return user updated
      */
- /*   @Operation(summary = "Add book to book list")
+    @Operation(summary = "Add book to book list")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Book added successfully"),
-            @ApiResponse(code = 404, message = "User not found or Book not found")
+            @ApiResponse(responseCode = "200", description = "Book added successfully", content = @Content),
+            @ApiResponse(responseCode = "404", description = "User not found or Book not found", content = @Content)
     })
     @PostMapping("addbook/{id}")
     public ResponseEntity<Object> addBook(@RequestBody Book book, @PathVariable Long id) {
@@ -150,14 +156,14 @@ public class UserController {
         user.addBook(addBook.get());
         return new ResponseEntity<>( userRepository.save(user), HttpStatus.OK);
     }
-*/
+
     /**
      * Identical to the add endpoint but it removes the book
      */
- /*   @Operation(summary = "Remove book to book list")
+    @Operation(summary = "Remove book to book list")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Book removed successfully"),
-            @ApiResponse(code = 404, message = "User not found or Book not found")
+            @ApiResponse(responseCode = "200", description = "Book removed successfully", content = @Content),
+            @ApiResponse(responseCode = "404", description = "User not found or Book not found", content = @Content)
     })
     @PostMapping("removebook/{id}")
     public ResponseEntity<Object> removeBook(@RequestBody Book book, @PathVariable Long id) {
@@ -169,6 +175,6 @@ public class UserController {
         user.removeBook(removeBook.get());
         return new ResponseEntity<>( userRepository.save(user), HttpStatus.OK);
     }
-*/
+
 
 }
