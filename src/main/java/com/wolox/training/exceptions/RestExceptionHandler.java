@@ -18,7 +18,7 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, "Book not found", new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 
-    @ExceptionHandler({ BookIdMismatchException.class, ConstraintViolationException.class, DataIntegrityViolationException.class })
+    @ExceptionHandler({ ObjectIdMismatchException.class, ConstraintViolationException.class, DataIntegrityViolationException.class })
     public ResponseEntity<Object> handleBadRequest(Exception ex, WebRequest request) {
         return handleExceptionInternal(ex, ex.getLocalizedMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
     }
@@ -31,5 +31,15 @@ public class RestExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler({ BookAlreadyOwnedException.class })
     public ResponseEntity<Object> bookAlreadyOwned(Exception ex, WebRequest request) {
         return handleExceptionInternal(ex, "the book is already on the list", new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler({ UserUsernameRepeatedException.class })
+    public ResponseEntity<Object> duplicateUsername(Exception ex, WebRequest request) {
+        return handleExceptionInternal(ex, "the username is already registered", new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+    }
+
+    @ExceptionHandler({ UserNotFoundException.class })
+    protected ResponseEntity<Object> handleUserNotFound(Exception ex, WebRequest request) {
+        return handleExceptionInternal(ex, "User not found", new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
 }

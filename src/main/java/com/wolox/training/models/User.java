@@ -1,7 +1,8 @@
 package com.wolox.training.models;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wolox.training.exceptions.BookAlreadyOwnedException;
-
+import com.wolox.training.exceptions.BookNotFoundException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,8 +14,6 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
-
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -40,6 +39,7 @@ public class User {
     @NotBlank
     private String name;
 
+    @JsonFormat(pattern = "dd-MM-yyyy")
     @Column(nullable = false)
     @NotNull
     private LocalDate birthdate;
@@ -51,11 +51,10 @@ public class User {
     public User() {
     }
 
-    public User(long id, String username, String name, LocalDate birthdate, List<Book> books) {
-        this.id = id;
-        username = username;
-        name = name;
-        birthdate = birthdate;
+    public User(String username, String name, LocalDate birthdate, List<Book> books) {
+        this.username = username;
+        this.name = name;
+        this.birthdate = birthdate;
         this.books = books;
     }
 
@@ -68,7 +67,7 @@ public class User {
     }
 
     public void setUsername(String username) {
-        username = username;
+        this.username = username;
     }
 
     public String getName() {
@@ -76,7 +75,7 @@ public class User {
     }
 
     public void setName(String name) {
-        name = name;
+        this.name = name;
     }
 
     public LocalDate getBirthdate() {
@@ -84,7 +83,7 @@ public class User {
     }
 
     public void setBirthdate(LocalDate birthdate) {
-        birthdate = birthdate;
+        this.birthdate = birthdate;
     }
 
     public List<Book> getBooks() {
@@ -111,13 +110,13 @@ public class User {
      * @param book book to remove from list
      * @return boolean true if it was removed or false if not found
      */
-    public boolean removeBook(Book book){
+    public List<Book> removeBook(Book book){
         int pos = this.books.indexOf(book);
-        boolean removed = false;
         if(pos != -1){
             this.books.remove(pos);
-            removed = true;
+        }else{
+            throw new BookNotFoundException();
         }
-        return removed;
+        return this.books;
     }
 }

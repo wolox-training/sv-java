@@ -60,8 +60,7 @@ public class Book {
     public Book() {
     }
 
-    public Book(long id, String genre, String author, String image, String title, String subtitle, String publisher, String years, int pages, String isbn) {
-        this.id = id;
+    public Book(String genre, String author, String image, String title, String subtitle, String publisher, String years, int pages, String isbn) {
         this.genre = genre;
         this.author = author;
         this.image = image;
