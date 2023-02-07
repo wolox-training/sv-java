@@ -65,6 +65,10 @@ public class User {
         this.books = books;
     }
 
+    public void setId(long id) {
+        this.id = id;
+    }
+
     public long getId() {
         return id;
     }

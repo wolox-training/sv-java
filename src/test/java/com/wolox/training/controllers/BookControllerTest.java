@@ -2,13 +2,10 @@ package com.wolox.training.controllers;
 
 import com.wolox.training.exceptions.BookNotFoundException;
 import com.wolox.training.exceptions.BookRepeatedTitleException;
-import com.wolox.training.exceptions.ObjectIdMismatchException;
-import com.wolox.training.exceptions.RestExceptionHandler;
 import com.wolox.training.models.Book;
 import com.wolox.training.repositories.BookRepository;
-import org.apache.catalina.connector.Response;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,16 +13,12 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -43,12 +36,7 @@ class BookControllerTest {
     private Book book = new Book("Terror", "Stephen King", "abcd", "IT", "Tu tambien flotaras",
             "Viking", "1986", 1504, "abcd");
 
-    @BeforeEach
-    public void setUp(){
-
-    }
-
-
+    @DisplayName("Successfully created")
     @Test
     void create() {
         book.setId(2);
@@ -60,6 +48,7 @@ class BookControllerTest {
         Mockito.verify(bookRepository, Mockito.times(1)).save(book);
     }
 
+    @DisplayName("Failed to create")
     @Test
     void createInvalid() {
         Optional<Book>  bookMock = Optional. of(book);
@@ -68,6 +57,7 @@ class BookControllerTest {
 
     }
 
+    @DisplayName("Book: Successfully delete book")
     @Test
     void delete() {
         book.setId(1);
@@ -78,7 +68,7 @@ class BookControllerTest {
         Mockito.verify(bookRepository).deleteById(1L);
 
     }
-
+    @DisplayName("Book: Successfully update")
     @Test
     void updateBook() {
         book.setId(1);
@@ -93,10 +83,24 @@ class BookControllerTest {
         Mockito.verify(bookRepository, Mockito.times(1)).save(book);
     }
 
+    @DisplayName("Book: Failed to update")
+    @Test
+    void updateInvalid() {
+        book.setId(1);
+        long id = 1;
+        when(bookRepository.findById(id)).thenThrow(new BookNotFoundException("Book not found"));
+       try {
+           bookController.updateBook(book, id);
+       }catch (Exception e){
+           Assertions.assertEquals("Book not found", e.getMessage());
+       }
+    }
+
+    @DisplayName("Book: List of books found successfully")
     @Test
     void findAll() {
         Book book2 = new Book("Terror", "Stephen King", "abcd", "IT2", "Tu tambien flotaras",
-                "Viking", "1986", 1504, "abcd");;
+                "Viking", "1986", 1504, "abcd");
         book2.setId(2);
         book.setId(1);
         List<Book> books = new ArrayList<Book>();
@@ -107,6 +111,7 @@ class BookControllerTest {
         Assertions.assertEquals("IT", ((List<Book>) booksReturn.getBody()).get(0).getTitle());
     }
 
+    @DisplayName("Book: Book found successfully")
     @Test
     void findOne() {
         book.setId(1);
