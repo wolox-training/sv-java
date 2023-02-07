@@ -3,6 +3,8 @@ package com.wolox.training.models;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.wolox.training.exceptions.BookAlreadyOwnedException;
 import com.wolox.training.exceptions.BookNotFoundException;
+
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,6 +16,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +26,7 @@ import java.util.List;
  * @author Varela Susana
  * @version 1.0
  */
+@Schema(description = "user with their book list")
 @Entity
 @Table(name = "users")
 public class User {
@@ -31,20 +35,23 @@ public class User {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
+    @Schema(name = "username")
     @Column(nullable = false, unique = true)
     @NotBlank
     private String username;
 
+    @Schema(name ="name")
     @Column(nullable = false)
     @NotBlank
     private String name;
 
+    @Schema(name ="birthdate dd-MM-yyyy")
     @JsonFormat(pattern = "dd-MM-yyyy")
     @Column(nullable = false)
     @NotNull
     private LocalDate birthdate;
 
-
+    @Schema(name ="books")
     @ManyToMany(cascade= {CascadeType.REFRESH, CascadeType.MERGE} ,fetch= FetchType.LAZY)
     private List<Book> books;
 
