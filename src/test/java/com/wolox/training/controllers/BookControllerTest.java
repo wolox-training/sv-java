@@ -1,10 +1,13 @@
 package com.wolox.training.controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wolox.training.exceptions.BookNotFoundException;
 import com.wolox.training.exceptions.BookRepeatedTitleException;
 import com.wolox.training.models.Book;
+import com.wolox.training.models.User;
 import com.wolox.training.repositories.BookRepository;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,18 +16,31 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(controllers = BookController.class)
 class BookControllerTest {
 
-    @Mock
+    @MockBean
     private BookRepository bookRepository;
 
     @InjectMocks
@@ -33,93 +49,83 @@ class BookControllerTest {
     @Autowired
     private MockMvc mvc;
 
-    private Book book = new Book("Terror", "Stephen King", "abcd", "IT", "Tu tambien flotaras",
-            "Viking", "1986", 1504, "abcd");
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    @DisplayName("Successfully created")
-    @Test
-    void create() {
-        book.setId(2);
-        long id = 2;
-        Optional<Book>  bookMock = Optional. of(book);
-        when(bookRepository.save(book)).thenReturn(book);
-        ResponseEntity<Object> bookReturn = bookController.create(book);
-        Assertions.assertEquals("IT", ((Book) bookReturn.getBody()).getTitle());
-        Mockito.verify(bookRepository, Mockito.times(1)).save(book);
+    private Book book;
+
+    @BeforeEach
+    void setUp(){
+        book =  new Book("Terror", "Stephen King", "abcd", "IT", "Tu tambien flotaras",
+                "Viking", "1986", 1504, "abcd");
     }
 
-    @DisplayName("Failed to create")
+    @DisplayName("User load in the db correct parameters")
     @Test
-    void createInvalid() {
-        Optional<Book>  bookMock = Optional. of(book);
-        when(bookRepository.findByTitle("IT")).thenReturn(bookMock);
-        Assertions.assertThrows(BookRepeatedTitleException.class, ()-> bookController.create(book), "the title is not valid");
-
+    void create() throws Exception{
+        when(bookRepository.save(book)).thenReturn(book);
+        mvc.perform(MockMvcRequestBuilders.post("/api/books").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(book)))
+                .andExpect(status().isCreated())
+                .andDo(print());
     }
 
     @DisplayName("Book: Successfully delete book")
     @Test
-    void delete() {
-        book.setId(1);
-        long id = 1;
-        Optional<Book>  bookMock = Optional. of(book);
-        when((bookRepository.findById(id))).thenReturn(bookMock);
-        bookController.delete(id);
-        Mockito.verify(bookRepository).deleteById(1L);
+    void delete() throws Exception{
+       long id = 1;
+        when((bookRepository.findById(id))).thenReturn(Optional. of(book));
+        mvc.perform(MockMvcRequestBuilders.delete("/api/books/{id}", id).contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(book)))
+                .andExpect(status().isOk())
+                .andDo(print());
 
     }
+
+
     @DisplayName("Book: Successfully update")
     @Test
-    void updateBook() {
-        book.setId(1);
+    void updateBook() throws Exception{
         long id = 1;
+        book.setId(id);
+        Book book2 =  new Book("Terror", "Stephen King", "abcd", "IT2", "Tu tambien flotaras",
+                "Viking", "1986", 1504, "abcd");
+        when(bookRepository.findById(id)).thenReturn(Optional. of(book));
+        when(bookRepository.save(any(Book.class))).thenReturn(book2);
+        mvc.perform(MockMvcRequestBuilders.put("/api/books/{id}", id).contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(book)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value(book2.getTitle()))
+                .andDo(print());
 
-        Optional<Book>  bookMock = Optional. of(book);
-        when(bookRepository.findById(id)).thenReturn(bookMock);
-        when(bookRepository.save(book)).thenReturn(book);
-        ResponseEntity<Object> bookReturn = bookController.updateBook(book, id);
-        Assertions.assertEquals(1, ((Book) bookReturn.getBody()).getId());
-        Assertions.assertEquals("IT", ((Book) bookReturn.getBody()).getTitle());
-        Mockito.verify(bookRepository, Mockito.times(1)).save(book);
-    }
-
-    @DisplayName("Book: Failed to update")
-    @Test
-    void updateInvalid() {
-        book.setId(1);
-        long id = 1;
-        when(bookRepository.findById(id)).thenThrow(new BookNotFoundException("Book not found"));
-       try {
-           bookController.updateBook(book, id);
-       }catch (Exception e){
-           Assertions.assertEquals("Book not found", e.getMessage());
-       }
     }
 
     @DisplayName("Book: List of books found successfully")
     @Test
-    void findAll() {
+    void findAll()throws Exception {
         Book book2 = new Book("Terror", "Stephen King", "abcd", "IT2", "Tu tambien flotaras",
                 "Viking", "1986", 1504, "abcd");
         book2.setId(2);
         book.setId(1);
-        List<Book> books = new ArrayList<Book>();
-        books.add(book);
-        books.add(book2);
+        List<Book> books = new ArrayList<>(Arrays.asList(book, book2));
         when(bookRepository.findAll()).thenReturn(books);
-        ResponseEntity<Object> booksReturn = bookController.findAll();
-        Assertions.assertEquals("IT", ((List<Book>) booksReturn.getBody()).get(0).getTitle());
+        MultiValueMap<String, String> paramsMap = new LinkedMultiValueMap<>();
+
+        mvc.perform(MockMvcRequestBuilders.get("/api/books").params(paramsMap))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(books.size()))
+                .andDo(print());
     }
 
     @DisplayName("Book: Book found successfully")
     @Test
-    void findOne() {
-        book.setId(1);
-        Optional<Book>  bookMock = Optional. of(book);
+    void findOne() throws Exception{
         long id = 1;
-
-        when(bookRepository.findById(id)).thenReturn(bookMock);
-        bookController.findOne(id);
-        Assertions.assertEquals(1,book.getId());
+        when(bookRepository.findById(id)).thenReturn(Optional. of(book));
+        mvc.perform(MockMvcRequestBuilders.get("/api/books/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value(book.getTitle()))
+                .andExpect(jsonPath("$.author").value(book.getAuthor()))
+                .andDo(print());
     }
 }

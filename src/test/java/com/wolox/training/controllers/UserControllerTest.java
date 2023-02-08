@@ -61,7 +61,7 @@ class UserControllerTest {
         user = new User("user1", "user1",  LocalDate.of(2022,02,02), books);
     }
 
-    @DisplayName("User: Successfully created")
+    @DisplayName("User load in the db correct parameters")
     @Test
     void create() throws Exception{
        when(userRepository.save(user)).thenReturn(user);
@@ -102,7 +102,7 @@ class UserControllerTest {
         when(userRepository.findById(id)).thenReturn(Optional. of(user));
         when(userRepository.save(any(User.class))).thenReturn(user2);
         mvc.perform(MockMvcRequestBuilders.put("/api/users/{id}", id).contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(user2)))
+                .content(objectMapper.writeValueAsString(user)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(user2.getName()))
                 .andDo(print());
