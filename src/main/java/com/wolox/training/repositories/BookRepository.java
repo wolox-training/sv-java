@@ -13,4 +13,6 @@ public interface BookRepository extends CrudRepository<Book, Long> {
 
     Optional<Book> findByTitle(String title);
 
+    Optional<Book> findByIsbn(String isbn);
+
 }

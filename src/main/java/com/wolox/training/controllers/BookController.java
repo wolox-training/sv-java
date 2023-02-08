@@ -5,6 +5,7 @@ import com.wolox.training.exceptions.BookNotFoundException;
 import com.wolox.training.exceptions.BookRepeatedTitleException;
 import com.wolox.training.models.Book;
 import com.wolox.training.repositories.BookRepository;
+import com.wolox.training.services.IOpenLibraryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,9 @@ public class BookController {
 
     @Autowired
     private BookRepository bookRepository;
+
+    @Autowired
+    private IOpenLibraryService iOpenLibraryService;
 
     /**
      * save the received book
@@ -90,5 +94,10 @@ public class BookController {
     public String greeting(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
         model.addAttribute("name", name);
         return "greeting";
+    }
+
+    @GetMapping("/isbn={isbn}")
+    public ResponseEntity<Object> findByIsbn(@PathVariable String isbn) {
+        return new ResponseEntity<>(iOpenLibraryService.bookInfo(isbn), HttpStatus.OK);
     }
 }
