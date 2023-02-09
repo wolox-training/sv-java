@@ -48,9 +48,10 @@ public class BookController {
      * @exception BookNotFoundException when the book was not found
      */
     @DeleteMapping("/{id}")
-    public void delete(@PathVariable Long id) {
+    public ResponseEntity<Object> delete(@PathVariable Long id) {
         bookRepository.findById(id).orElseThrow(BookNotFoundException::new);
         bookRepository.deleteById(id);
+        return new ResponseEntity<>("The book was removed", HttpStatus.OK);
     }
 
     /**
