@@ -52,8 +52,12 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp(){
-        book =  new Book("Terror", "Stephen King", "abcd", "IT", "Tu tambien flotaras",
-                "Viking", "1986", 1504, "abcd");
+        List<String> authors = new ArrayList<String>();
+        authors.add("Stephen King");
+        List<String> publishers = new ArrayList<String>();
+        publishers.add("Viking");
+        book =  new Book("Terror", authors, "abcd", "IT", "Tu tambien flotaras",
+                publishers, "1986", 1504, "abcd");
 
         List<Book> books = new ArrayList<Book>();
         user = new User("user1", "user1",  LocalDate.of(2022,02,02), books);

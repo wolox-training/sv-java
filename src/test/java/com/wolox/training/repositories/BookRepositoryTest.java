@@ -8,6 +8,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @DataJpaTest
@@ -20,16 +22,24 @@ class BookRepositoryTest {
 
     @BeforeEach
     public void setUp(){
-        book =  new Book("Terror", "Stephen King", "abcd", "IT", "Tu tambien flotaras",
-                "Viking", "1986", 1504, "abcd");
+        List<String> authors = new ArrayList<String>();
+        authors.add("Stephen King");
+        List<String> publishers = new ArrayList<String>();
+        publishers.add("Viking");
+        book =  new Book("Terror", authors, "abcd", "IT", "Tu tambien flotaras",
+                publishers, "1986", 1504, "abcd");
         bookRepository.save(book);
     }
 
     @DisplayName("whenExecutedSave_savesTheBookAndGeneratesItsId")
     @Test
     void save() {
-        Book savebook =  new Book("Terror", "Stephen King", "abcd", "IT2", "Tu tambien flotaras",
-                "Viking", "1986", 1504, "abcd");
+        List<String> authors = new ArrayList<String>();
+        authors.add("Stephen King");
+        List<String> publishers = new ArrayList<String>();
+        publishers.add("Viking");
+        Book savebook =  new Book("Terror", authors, "abcd", "IT2", "Tu tambien flotaras",
+                publishers, "1986", 1504, "abcd");
 
         Book savedBook =  bookRepository.save(savebook);
         Optional<Book> bookById = bookRepository.findById(savedBook.getId());

@@ -29,6 +29,7 @@ import org.springframework.util.MultiValueMap;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -54,8 +55,12 @@ class BookControllerTest {
 
     @BeforeEach
     void setUp(){
-        book =  new Book("Terror", "Stephen King", "abcd", "IT", "Tu tambien flotaras",
-                "Viking", "1986", 1504, "abcd");
+        List<String> authors = new ArrayList<String>();
+        authors.add("Stephen King");
+        List<String> publishers = new ArrayList<String>();
+        publishers.add("Viking");
+        book =  new Book("Terror", authors, "abcd", "IT", "Tu tambien flotaras",
+                publishers, "1986", 1504, "abcd");
     }
 
     @DisplayName("whenTheEndpointIsExecutedCreate_ReturnCreate")
@@ -86,8 +91,12 @@ class BookControllerTest {
     void updateBook() throws Exception{
         long id = 1;
         ReflectionTestUtils.setField(book, "id", id);
-        Book book2 =  new Book("Terror", "Stephen King", "abcd", "IT2", "Tu tambien flotaras",
-                "Viking", "1990", 1400, "abcd");
+        List<String> authors = new ArrayList<String>();
+        authors.add("Stephen King");
+        List<String> publishers = new ArrayList<String>();
+        publishers.add("Viking");
+        Book book2 =  new Book("Terror", authors, "abcd", "IT2", "Tu tambien flotaras",
+                publishers, "1990", 1400, "abcd");
         when(bookRepository.findById(id)).thenReturn(Optional. of(book));
         when(bookRepository.save(any(Book.class))).thenReturn(book2);
         mvc.perform(MockMvcRequestBuilders.put("/api/books/{id}", id).contentType(MediaType.APPLICATION_JSON)
@@ -103,8 +112,12 @@ class BookControllerTest {
     @DisplayName("whenTheEndpointIsExecutedFindAll_ReturnOkAndTheNumberOfObjectsExpected")
     @Test
     void findAll()throws Exception {
-        Book book2 = new Book("Terror", "Stephen King", "abcd", "IT2", "Tu tambien flotaras",
-                "Viking", "1990", 1400, "abcd");
+        List<String> authors = new ArrayList<String>();
+        authors.add("Stephen King");
+        List<String> publishers = new ArrayList<String>();
+        publishers.add("Viking");
+        Book book2 = new Book("Terror", authors, "abcd", "IT2", "Tu tambien flotaras",
+                publishers, "1990", 1400, "abcd");
         ReflectionTestUtils.setField(book2, "id", 2L);
         ReflectionTestUtils.setField(book, "id", 1L);
         List<Book> books = new ArrayList<>(Arrays.asList(book, book2));
@@ -125,7 +138,7 @@ class BookControllerTest {
         mvc.perform(MockMvcRequestBuilders.get("/api/books/{id}", id))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value(book.getTitle()))
-                .andExpect(jsonPath("$.author").value(book.getAuthor()))
+                .andExpect(jsonPath("$.authors").value(book.getAuthors()))
                 .andDo(print());
     }
 }
