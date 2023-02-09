@@ -20,6 +20,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.LinkedMultiValueMap;
@@ -43,7 +44,6 @@ class BookControllerTest {
     @MockBean
     private BookRepository bookRepository;
 
-    @InjectMocks
     private BookController bookController;
 
     @Autowired
@@ -60,7 +60,7 @@ class BookControllerTest {
                 "Viking", "1986", 1504, "abcd");
     }
 
-    @DisplayName("User load in the db correct parameters")
+    @DisplayName("whenTheEndpointIsExecutedCreate_ReturnCreate")
     @Test
     void create() throws Exception{
         when(bookRepository.save(book)).thenReturn(book);
@@ -70,7 +70,7 @@ class BookControllerTest {
                 .andDo(print());
     }
 
-    @DisplayName("Book: Successfully delete book")
+    @DisplayName("whenTheEndpointIsExecutedDelete_ReturnOk")
     @Test
     void delete() throws Exception{
        long id = 1;
@@ -83,30 +83,32 @@ class BookControllerTest {
     }
 
 
-    @DisplayName("Book: Successfully update")
+    @DisplayName("whenTheEndpointIsExecutedUpdate_ReturnOkAndTheModifiedAttributesSuccessfully")
     @Test
     void updateBook() throws Exception{
         long id = 1;
-        book.setId(id);
+        ReflectionTestUtils.setField(book, "id", id);
         Book book2 =  new Book("Terror", "Stephen King", "abcd", "IT2", "Tu tambien flotaras",
-                "Viking", "1986", 1504, "abcd");
+                "Viking", "1990", 1400, "abcd");
         when(bookRepository.findById(id)).thenReturn(Optional. of(book));
         when(bookRepository.save(any(Book.class))).thenReturn(book2);
         mvc.perform(MockMvcRequestBuilders.put("/api/books/{id}", id).contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(book)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value(book2.getTitle()))
+                .andExpect(jsonPath("$.pages").value(book2.getPages()))
+                .andExpect(jsonPath("$.years").value(book2.getYears()))
                 .andDo(print());
 
     }
 
-    @DisplayName("Book: List of books found successfully")
+    @DisplayName("whenTheEndpointIsExecutedFindAll_ReturnOkAndTheNumberOfObjectsExpected")
     @Test
     void findAll()throws Exception {
         Book book2 = new Book("Terror", "Stephen King", "abcd", "IT2", "Tu tambien flotaras",
-                "Viking", "1986", 1504, "abcd");
-        book2.setId(2);
-        book.setId(1);
+                "Viking", "1990", 1400, "abcd");
+        ReflectionTestUtils.setField(book2, "id", 2L);
+        ReflectionTestUtils.setField(book, "id", 1L);
         List<Book> books = new ArrayList<>(Arrays.asList(book, book2));
         when(bookRepository.findAll()).thenReturn(books);
         MultiValueMap<String, String> paramsMap = new LinkedMultiValueMap<>();
@@ -117,7 +119,7 @@ class BookControllerTest {
                 .andDo(print());
     }
 
-    @DisplayName("Book: Book found successfully")
+    @DisplayName("whenTheEndpointIsExecutedFindOne_ReturnOkAndTheRequestedBooks")
     @Test
     void findOne() throws Exception{
         long id = 1;

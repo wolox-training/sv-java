@@ -25,7 +25,7 @@ class BookRepositoryTest {
         bookRepository.save(book);
     }
 
-    @DisplayName("Book: Book saved successfully")
+    @DisplayName("whenExecutedSave_savesTheBookAndGeneratesItsId")
     @Test
     void save() {
         Book savebook =  new Book("Terror", "Stephen King", "abcd", "IT2", "Tu tambien flotaras",
@@ -33,11 +33,11 @@ class BookRepositoryTest {
         bookRepository.save(savebook);
         long id = 2;
         Optional<Book> savedBook = bookRepository.findById(id);
-        Assertions.assertEquals(book.getGenre(), savedBook.get().getGenre());
+        Assertions.assertEquals(savebook.getGenre(), savedBook.get().getGenre());
 
     }
 
-    @DisplayName("Book: Book find by title found successfully")
+    @DisplayName("whenExecutedFindByTitle_returnTheRequestedBook")
     @Test
     void findByTitle() {
         Optional<Book> savedBook = bookRepository.findByTitle(book.getTitle());
@@ -46,7 +46,7 @@ class BookRepositoryTest {
 
     }
 
-    @DisplayName("Book: Book find by id found successfully")
+    @DisplayName("whenExecutedFindById_returnTheRequestedBook")
     @Test
     void findById(){
         long id = 1;

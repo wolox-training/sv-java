@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.LinkedMultiValueMap;
@@ -61,7 +62,7 @@ class UserControllerTest {
         user = new User("user1", "user1",  LocalDate.of(2022,02,02), books);
     }
 
-    @DisplayName("User load in the db correct parameters")
+    @DisplayName("whenTheEndpointIsExecutedCreate_ReturnCreate")
     @Test
     void create() throws Exception{
        when(userRepository.save(user)).thenReturn(user);
@@ -71,7 +72,7 @@ class UserControllerTest {
                .andDo(print());
     }
 
-    @DisplayName("User: Successfully delete user")
+    @DisplayName("whenTheEndpointIsExecutedDelete_ReturnOk")
     @Test
     void delete() throws Exception{
         long id = 1;
@@ -82,7 +83,7 @@ class UserControllerTest {
                 .andDo(print());
     }
 
-    @DisplayName("User: Exception when delete user")
+    @DisplayName("givenUserDoesNotExist_whenTheEndpointIsExecutedDelete_thenReturnNotFound")
     @Test
     void deleteInvalid() throws Exception {
         long id = 1;
@@ -93,7 +94,7 @@ class UserControllerTest {
 
     }
 
-    @DisplayName("User: Successfully update")
+    @DisplayName("whenTheEndpointIsExecutedUpdate_ReturnOkAndTheModifiedAttributesSuccessfully")
     @Test
     void updateUser() throws Exception{
         long id = 1;
@@ -105,12 +106,13 @@ class UserControllerTest {
                 .content(objectMapper.writeValueAsString(user)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(user2.getName()))
+                .andExpect(jsonPath("$.username").value(user2.getUsername()))
                 .andDo(print());
 
     }
 
 
-    @DisplayName("User: List of users found successfully")
+    @DisplayName("whenTheEndpointIsExecutedFindAll_ReturnOkAndTheNumberOfObjectsExpected")
     @Test
     void findAll() throws Exception{
         User user2 = new User("user2", "user2", LocalDate.of(2020,02,02), new ArrayList<Book>());
@@ -125,12 +127,11 @@ class UserControllerTest {
                 .andDo(print());
     }
 
-    @DisplayName("User: User found successfully")
+    @DisplayName("whenTheEndpointIsExecutedFindOne_ReturnOkAndTheRequestedUsers")
     @Test
     void findOne() throws Exception{
         long id = 1;
         when(userRepository.findById(id)).thenReturn(Optional. of(user));
-
 
         mvc.perform(MockMvcRequestBuilders.get("/api/users/{id}", id))
                 .andExpect(status().isOk())
@@ -139,11 +140,11 @@ class UserControllerTest {
                 .andDo(print());
     }
 
-    @DisplayName("User: Book added successfully")
+    @DisplayName("whenTheEndpointIsExecutedAddBook_ReturnOkAndTheBookAddedInTheList")
     @Test
     void addBook() throws Exception{
         long id = 1;
-        book.setId(id);
+        ReflectionTestUtils.setField(book, "id", id);
         when(userRepository.findById(id)).thenReturn(Optional. of(user));
         when(bookRepository.findById(id)).thenReturn(Optional. of(book));
         when(userRepository.save(user)).thenReturn(user);
@@ -152,15 +153,16 @@ class UserControllerTest {
                 .content(objectMapper.writeValueAsString(book)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.books[0].title").value(book.getTitle()))
+                .andExpect(jsonPath("$.books[0].pages").value(book.getPages()))
                 .andDo(print());
     }
 
 
-    @DisplayName("User: Book removed successfully")
+    @DisplayName("whenTheEndpointIsExecutedRemoveBook_ReturnOkAndTheCorrectSizeOfTheList")
     @Test
     void removeBook()  throws Exception{
         long id = 1;
-        book.setId(id);
+        ReflectionTestUtils.setField(book, "id", id);
         user.addBook(book);
         when(userRepository.findById(id)).thenReturn(Optional. of(user));
         when(bookRepository.findById(id)).thenReturn(Optional. of(book));
