@@ -3,12 +3,17 @@ package com.wolox.training.services.impl;
 import com.wolox.training.dtos.AuthorDto;
 import com.wolox.training.dtos.BookDto;
 import com.wolox.training.dtos.PublishersDto;
+import com.wolox.training.exceptions.BookNotFoundException;
 import com.wolox.training.models.Book;
 import com.wolox.training.repositories.BookRepository;
 import com.wolox.training.services.IOpenLibraryService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,33 +32,61 @@ public class OpenLibraryService implements IOpenLibraryService {
     }
 
 
-    public BookDto getBookByIsbn(String isbn) {
-        isbn = "OL7440033M";
-
+    public BookDto getBookByIsbn(String isbn) throws BookNotFoundException{
         String url = "books/"+isbn+".json";
-        BookDto dto = webClient
-                .get()
-                .uri(url)
-                .retrieve()
-                .bodyToMono(BookDto.class).block();
-        dto.setIsbn(isbn);
-        System.out.println("dto externo : " + dto.toString());
 
-        return dto;
+        try {
+            BookDto dto = webClient
+                    .get()
+                    .uri(url)
+                    .retrieve()
+                    .bodyToMono(BookDto.class).block();
+            dto.setIsbn(isbn);
+            List<AuthorDto> authorDtos = dto.getAuthors();
+            authorDtos.forEach(author -> author.setName(getAuthosrByKey(author.getUrl()).getName()));
+            dto.setAuthors(authorDtos);
+            return dto;
+        }  catch (WebClientResponseException wcre) {
+
+            throw new BookNotFoundException();
+        } catch (Exception ex) {
+            throw new BookNotFoundException();
+        }
+
+    }
+
+    public AuthorDto getAuthosrByKey(String key) {
+
+        String url = key + ".json";
+        try {
+            AuthorDto dto = webClient
+                    .get()
+                    .uri(url)
+                    .retrieve()
+                    .bodyToMono(AuthorDto.class).block();
+            return dto;
+        }  catch (WebClientResponseException wcre) {
+
+            throw new BookNotFoundException();
+        } catch (Exception ex) {
+            throw new BookNotFoundException();
+        }
     }
 
     public BookDto passageBookToDto(Book book) {
-        BookDto dto = new BookDto();
+       BookDto dto = new BookDto();
        dto.setIsbn(book.getIsbn());
        dto.setTitle(book.getTitle());
        dto.setSubtitle(book.getSubtitle());
        dto.setNumberOfPages(book.getPages());
-        book.getPublishers().forEach(publisher ->
-                dto.getPublishers().add(new PublishersDto(publisher)));
        dto.setPublishDate(book.getYears());
-      book.getAuthors().forEach(author ->
-              dto.getAuthors().add(new AuthorDto(author)));
+       List<PublishersDto> publishersDto = new ArrayList<>();
+       book.getPublishers().forEach(publisher -> publishersDto.add(new PublishersDto(publisher)));
+       dto.setPublishers(publishersDto);
 
+       List<AuthorDto> authorDto = new ArrayList<>();
+       book.getAuthors().forEach(author -> authorDto.add(new AuthorDto(author)));
+       dto.setAuthors(authorDto);
         return dto;
     }
 
@@ -64,11 +97,9 @@ public class OpenLibraryService implements IOpenLibraryService {
         book.setSubtitle(dto.getSubtitle());
         book.setPages(dto.getNumberOfPages());
         book.setYears(dto.getPublishDate());
-
         List<String> publishersList = new ArrayList<>();
         dto.getPublishers().forEach(publisher -> publishersList.add(publisher.getName()));
         book.setPublishers(publishersList);
-
         List<String> authorsList = new ArrayList<>();
         dto.getAuthors().forEach(author -> authorsList.add(author.getName()));
         book.setAuthors(authorsList);
@@ -85,10 +116,9 @@ public class OpenLibraryService implements IOpenLibraryService {
         Optional<Book> book = bookRepository.findByIsbn(isbn);
         if(book.isPresent()){
             dto = passageBookToDto(book.get());
-            System.out.println("dto repo : " + dto.toString());
         }else{
             dto = getBookByIsbn(isbn);
-           bookRepository.save(passageDtoToBook(dto));
+            bookRepository.save(passageDtoToBook(dto));
         }
         return dto;
     }

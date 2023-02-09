@@ -1,5 +1,6 @@
 package com.wolox.training.controllers;
 
+import com.wolox.training.dtos.BookDto;
 import com.wolox.training.exceptions.ObjectIdMismatchException;
 import com.wolox.training.exceptions.BookNotFoundException;
 import com.wolox.training.exceptions.BookRepeatedTitleException;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/api/books")
@@ -98,6 +101,13 @@ public class BookController {
 
     @GetMapping("/isbn={isbn}")
     public ResponseEntity<Object> findByIsbn(@PathVariable String isbn) {
-        return new ResponseEntity<>(iOpenLibraryService.bookInfo(isbn), HttpStatus.OK);
+        BookDto bookDto = new BookDto();
+        if( bookRepository.findByIsbn(isbn).isPresent()){
+            bookDto = iOpenLibraryService.bookInfo(isbn);
+            return new ResponseEntity<>(bookDto, HttpStatus.OK);
+        }else{
+            bookDto = iOpenLibraryService.bookInfo(isbn);
+            return new ResponseEntity<>(bookDto, HttpStatus.CREATED);
+        }
     }
 }
