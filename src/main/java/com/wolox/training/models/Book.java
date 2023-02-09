@@ -74,10 +74,6 @@ public class Book {
         this.isbn = isbn;
     }
 
-    public void setId(long id) {
-        this.id = id;
-    }
-
     public long getId() {
         return id;
     }

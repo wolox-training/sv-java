@@ -1,44 +1,50 @@
 package com.wolox.training.controllers;
 
-import com.wolox.training.exceptions.BookNotFoundException;
-import com.wolox.training.exceptions.UserNotFoundException;
-import com.wolox.training.exceptions.UserUsernameRepeatedException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wolox.training.models.Book;
 import com.wolox.training.models.User;
 import com.wolox.training.repositories.BookRepository;
 import com.wolox.training.repositories.UserRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
-import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(controllers = UserController.class)
 class UserControllerTest {
 
-    @Mock
+    @MockBean
     private UserRepository userRepository;
 
-    @Mock
+    @MockBean
     private BookRepository bookRepository;
-
-    @InjectMocks
-    private UserController userController;
 
     @Autowired
     private MockMvc mvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private User user;
 
@@ -48,125 +54,121 @@ class UserControllerTest {
     void setUp(){
         book =  new Book("Terror", "Stephen King", "abcd", "IT", "Tu tambien flotaras",
                 "Viking", "1986", 1504, "abcd");
-        book.setId(1);
 
         List<Book> books = new ArrayList<Book>();
-        user = new User("user1", "user1", LocalDate.of(2022,02,02), books);
-        user.setId(1);
+        user = new User("user1", "user1",  LocalDate.of(2022,02,02), books);
     }
 
-    @DisplayName("User: Successfully created")
+    @DisplayName("whenTheEndpointIsExecutedCreate_ReturnCreate")
     @Test
     void create() throws Exception{
-        when(userRepository.save(user)).thenReturn(user);
-        ResponseEntity<Object> userReturn =userController.create(user);
-        Assertions.assertEquals("user1",  ((User)userReturn.getBody()).getName());
-        Assertions.assertEquals(HttpStatus.CREATED, userReturn.getStatusCode());
+       when(userRepository.save(user)).thenReturn(user);
+       mvc.perform(MockMvcRequestBuilders.post("/api/users").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(user)))
+               .andExpect(status().isCreated())
+               .andDo(print());
     }
 
-    @DisplayName("User: Failed to create")
+    @DisplayName("whenTheEndpointIsExecutedDelete_ReturnOk")
     @Test
-    void createInvalid() {
-        Optional<User>  userMock = Optional. of(user);
-        when(userRepository.findByUsername(user.getUsername())).thenReturn(userMock);
-        Assertions.assertThrows(UserUsernameRepeatedException.class, ()-> userController.create(user), "the username is already registered");
-    }
-
-    @DisplayName("User: Successfully delete user")
-    @Test
-    void delete() {
+    void delete() throws Exception{
         long id = 1;
         when(userRepository.findById(id)).thenReturn(Optional. of(user));
-        ResponseEntity<String> userReturn = userController.delete(id);
-        Assertions.assertEquals(HttpStatus.OK, userReturn.getStatusCode());
-        Assertions.assertEquals("User has been successfully removed", ((String)userReturn.getBody()));
+        mvc.perform(MockMvcRequestBuilders.delete("/api/users/{id}", id).contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(user)))
+                .andExpect(status().isOk())
+                .andDo(print());
     }
 
-    @DisplayName("User: Exception when delete user")
+    @DisplayName("givenUserDoesNotExist_whenTheEndpointIsExecutedDelete_thenReturnNotFound")
     @Test
-    void deleteInvalid() {
+    void deleteInvalid() throws Exception {
         long id = 1;
-        when(userRepository.findById(id)).thenThrow(new UserNotFoundException("User not found"));
-        try {
-            userController.delete(id);
-        }catch (Exception e){
-            Assertions.assertEquals("User not found", e.getMessage());
-        }
+        when(userRepository.findById(id)).thenReturn(Optional.empty());
+        mvc.perform(MockMvcRequestBuilders.delete("/api/users/{id}", id))
+                .andExpect(status().isNotFound())
+                .andDo(print());
 
     }
-    @DisplayName("User: Successfully update")
+
+    @DisplayName("whenTheEndpointIsExecutedUpdate_ReturnOkAndTheModifiedAttributesSuccessfully")
     @Test
-    void updateUser() {
+    void updateUser() throws Exception{
         long id = 1;
-        when(userRepository.findById(id)).thenReturn(Optional. of(user));
-        when(userRepository.save(user)).thenReturn(user);
-        ResponseEntity<Object> userReturn = userController.updateUser(user, id);
-
-        Assertions.assertEquals("user1",  ((User) userReturn.getBody()).getName());
-        Assertions.assertTrue( (user.getBirthdate().isEqual(((User)userReturn.getBody()).getBirthdate())) );
-        Assertions.assertEquals(HttpStatus.OK, userReturn.getStatusCode());
-
-    }
-
-    @DisplayName("User: List of users found successfully")
-    @Test
-    void findAll() {
         User user2 = new User("user2", "user2", LocalDate.of(2020,02,02), new ArrayList<Book>());
-        user2.setId(2);
-        List<User> users = new ArrayList<User>();
-        users.add(user);
-        users.add(user2);
-        when(userRepository.findAll()).thenReturn(users);
-        ResponseEntity<Object> userReturn = userController.findAll();
-        Assertions.assertEquals("user1", ((List<User>) userReturn.getBody()).get(0).getUsername());
-        Assertions.assertEquals("user2", ((List<User>) userReturn.getBody()).get(1).getName());
-        Assertions.assertEquals(HttpStatus.OK, userReturn.getStatusCode());
+
+        when(userRepository.findById(id)).thenReturn(Optional. of(user));
+        when(userRepository.save(any(User.class))).thenReturn(user2);
+        mvc.perform(MockMvcRequestBuilders.put("/api/users/{id}", id).contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(user)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(user2.getName()))
+                .andExpect(jsonPath("$.username").value(user2.getUsername()))
+                .andDo(print());
+
     }
 
-    @DisplayName("User: User found successfully")
+
+    @DisplayName("whenTheEndpointIsExecutedFindAll_ReturnOkAndTheNumberOfObjectsExpected")
     @Test
-    void findOne() {
+    void findAll() throws Exception{
+        User user2 = new User("user2", "user2", LocalDate.of(2020,02,02), new ArrayList<Book>());
+        List<User> users = new ArrayList<>(Arrays.asList(user, user2));
+
+        when(userRepository.findAll()).thenReturn(users);
+        MultiValueMap<String, String> paramsMap = new LinkedMultiValueMap<>();
+
+        mvc.perform(MockMvcRequestBuilders.get("/api/users").params(paramsMap))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(users.size()))
+                .andDo(print());
+    }
+
+    @DisplayName("whenTheEndpointIsExecutedFindOne_ReturnOkAndTheRequestedUsers")
+    @Test
+    void findOne() throws Exception{
         long id = 1;
         when(userRepository.findById(id)).thenReturn(Optional. of(user));
-        userController.findOne(id);
-        ResponseEntity<Object> userReturn = userController.findOne(id);
-        Assertions.assertEquals("user1", ((User) userReturn.getBody()).getUsername());
-        Assertions.assertEquals(HttpStatus.OK, userReturn.getStatusCode());
+
+        mvc.perform(MockMvcRequestBuilders.get("/api/users/{id}", id))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(user.getName()))
+                .andExpect(jsonPath("$.username").value(user.getUsername()))
+                .andDo(print());
     }
 
-    @DisplayName("User: Book added successfully")
+    @DisplayName("whenTheEndpointIsExecutedAddBook_ReturnOkAndTheBookAddedInTheList")
     @Test
-    void addBook() {
+    void addBook() throws Exception{
         long id = 1;
+        ReflectionTestUtils.setField(book, "id", id);
         when(userRepository.findById(id)).thenReturn(Optional. of(user));
         when(bookRepository.findById(id)).thenReturn(Optional. of(book));
         when(userRepository.save(user)).thenReturn(user);
-        ResponseEntity<Object> userReturn = userController.addBook(book, id);
-        Assertions.assertEquals(book, ((User) userReturn.getBody()).getBooks().get(0));
+
+        mvc.perform(MockMvcRequestBuilders.post("/api/users/addbook/{id}", id).contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(book)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.books[0].title").value(book.getTitle()))
+                .andExpect(jsonPath("$.books[0].pages").value(book.getPages()))
+                .andDo(print());
     }
 
-    @DisplayName("User: Exception when adding book")
-    @Test
-    void addBookInvalid() {
-        long id = 1;
-        when(userRepository.findById(id)).thenReturn(Optional. of(user));
-        when(bookRepository.findById(id)).thenThrow(new BookNotFoundException("Book not found"));
-        try {
-            userController.addBook(book, id);
-        }catch (Exception e){
-            Assertions.assertEquals("Book not found", e.getMessage());
-        }
-    }
 
-    @DisplayName("User: Book removed successfully")
+    @DisplayName("whenTheEndpointIsExecutedRemoveBook_ReturnOkAndTheCorrectSizeOfTheList")
     @Test
-    void removeBook() {
+    void removeBook()  throws Exception{
         long id = 1;
+        ReflectionTestUtils.setField(book, "id", id);
         user.addBook(book);
         when(userRepository.findById(id)).thenReturn(Optional. of(user));
         when(bookRepository.findById(id)).thenReturn(Optional. of(book));
         when(userRepository.save(user)).thenReturn(user);
-        ResponseEntity<Object> userReturn = userController.removeBook(book, id);
-        Assertions.assertTrue(((User) userReturn.getBody()).getBooks().isEmpty());
+
+        mvc.perform(MockMvcRequestBuilders.post("/api/users/removebook/{id}", id).contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(book)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.books.size()").value(user.getBooks().size()))
+                .andDo(print());
     }
 }

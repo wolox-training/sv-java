@@ -28,20 +28,18 @@ class UserRepositoryTest {
         userRepository.save(user);
     }
 
-    @DisplayName("User: User saved successfully")
+    @DisplayName("whenExecutedSave_savesUserAndGeneratesItsId")
     @Test
     void save() {
         List<Book> books = new ArrayList<Book>();
         User saveUser = new User("user2", "user2", LocalDate.of(2020,02,02), books);
-        userRepository.save(saveUser);
-        long id = 2;
-        Optional<User> savedUser = userRepository.findById(id);
-        Assertions.assertEquals("user2", savedUser.get().getUsername());
-        Assertions.assertTrue(savedUser.get().getId() == id);
 
+        User savedUser = userRepository.save(saveUser);
+        Optional<User> userById = userRepository.findById(savedUser.getId());
+        Assertions.assertEquals(saveUser.getUsername(), userById.get().getUsername());
     }
 
-    @DisplayName("User: User find by username found successfully")
+    @DisplayName("whenExecutedFindByUsername_returnTheRequestedUser")
     @Test
     void findByUsername() {
         Optional<User> savedUser = userRepository.findByUsername(user.getUsername());
@@ -49,7 +47,7 @@ class UserRepositoryTest {
         Assertions.assertTrue(savedUser.get().getId() > 0);
     }
 
-    @DisplayName("User: User find by id found successfully")
+    @DisplayName("whenExecutedFindById_returnTheRequestedUser")
     @Test
     void findById(){
         long id = 1;
