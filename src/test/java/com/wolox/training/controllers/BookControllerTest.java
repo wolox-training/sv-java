@@ -44,8 +44,6 @@ class BookControllerTest {
     @MockBean
     private BookRepository bookRepository;
 
-    private BookController bookController;
-
     @Autowired
     private MockMvc mvc;
 

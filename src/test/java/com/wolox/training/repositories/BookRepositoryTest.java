@@ -30,10 +30,10 @@ class BookRepositoryTest {
     void save() {
         Book savebook =  new Book("Terror", "Stephen King", "abcd", "IT2", "Tu tambien flotaras",
                 "Viking", "1986", 1504, "abcd");
-        bookRepository.save(savebook);
-        long id = 2;
-        Optional<Book> savedBook = bookRepository.findById(id);
-        Assertions.assertEquals(savebook.getGenre(), savedBook.get().getGenre());
+
+        Book savedBook =  bookRepository.save(savebook);
+        Optional<Book> bookById = bookRepository.findById(savedBook.getId());
+        Assertions.assertEquals(savebook.getGenre(), bookById.get().getGenre());
 
     }
 

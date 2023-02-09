@@ -40,9 +40,6 @@ class UserControllerTest {
     @MockBean
     private BookRepository bookRepository;
 
-    @InjectMocks
-    private UserController userController;
-
     @Autowired
     private MockMvc mvc;
 
