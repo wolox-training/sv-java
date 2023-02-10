@@ -8,6 +8,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
+import java.util.List;
+
 /**
  * This class is used to define a book
  * @author Varela Susana
@@ -27,7 +29,7 @@ public class Book {
 
     @Column(nullable = false)
     @NotNull
-    private String author;
+    private List<String> authors;
 
     @Column(nullable = false)
     @NotNull
@@ -43,7 +45,7 @@ public class Book {
 
     @Column(nullable = false)
     @NotNull
-    private String publisher;
+    private List<String> publishers;
 
     @Column(nullable = false)
     @NotNull
@@ -51,7 +53,7 @@ public class Book {
 
     @Column(nullable = false)
     @NotNull
-    private int pages;
+    private float pages;
 
     @Column(nullable = false)
     @NotNull
@@ -60,13 +62,13 @@ public class Book {
     public Book() {
     }
 
-    public Book(String genre, String author, String image, String title, String subtitle, String publisher, String years, int pages, String isbn) {
+    public Book(String genre,  List<String> authors, String image, String title, String subtitle, List<String> publishers, String years, float pages, String isbn) {
         this.genre = genre;
-        this.author = author;
+        this.authors = authors;
         this.image = image;
         this.title = title;
         this.subtitle = subtitle;
-        this.publisher = publisher;
+        this.publishers = publishers;
         this.years = years;
         this.pages = pages;
         this.isbn = isbn;
@@ -84,12 +86,12 @@ public class Book {
         this.genre = genre;
     }
 
-    public String getAuthor() {
-        return author;
+    public List<String> getAuthors() {
+        return authors;
     }
 
-    public void setAuthor(String author) {
-        this.author = author;
+    public void setAuthors(List<String> authors) {
+        this.authors = authors;
     }
 
     public String getImage() {
@@ -116,12 +118,12 @@ public class Book {
         this.subtitle = subtitle;
     }
 
-    public String getPublisher() {
-        return publisher;
+    public List<String> getPublishers() {
+        return publishers;
     }
 
-    public void setPublisher(String publisher) {
-        this.publisher = publisher;
+    public void setPublishers(List<String> publishers) {
+        this.publishers = publishers;
     }
 
     public String getYears() {
@@ -132,11 +134,11 @@ public class Book {
         this.years = years;
     }
 
-    public int getPages() {
+    public float getPages() {
         return pages;
     }
 
-    public void setPages(int pages) {
+    public void setPages(float pages) {
         this.pages = pages;
     }
 

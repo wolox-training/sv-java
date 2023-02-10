@@ -1,10 +1,12 @@
 package com.wolox.training.controllers;
 
+import com.wolox.training.dtos.BookDto;
 import com.wolox.training.exceptions.ObjectIdMismatchException;
 import com.wolox.training.exceptions.BookNotFoundException;
 import com.wolox.training.exceptions.BookRepeatedTitleException;
 import com.wolox.training.models.Book;
 import com.wolox.training.repositories.BookRepository;
+import com.wolox.training.services.IOpenLibraryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +28,9 @@ public class BookController {
 
     @Autowired
     private BookRepository bookRepository;
+
+    @Autowired
+    private IOpenLibraryService iOpenLibraryService;
 
     /**
      * save the received book
@@ -91,5 +96,21 @@ public class BookController {
     public String greeting(@RequestParam(name="name", required=false, defaultValue="World") String name, Model model) {
         model.addAttribute("name", name);
         return "greeting";
+    }
+
+    /**
+     * Finds a requested book if it is not in the database finds for it in an external api
+     * @param isbn is the key to the search
+     * @return return a BookDto with the loaded data and If it finds it in the database, it sends in ok.
+     *         If it does not find it, looks for it in an external api, returns a bookdto and created code.
+     *         If it does not find it returns not found.
+     */
+    @GetMapping("/isbn={isbn}")
+    public ResponseEntity<Object> findByIsbn(@PathVariable String isbn) {
+        BookDto bookDto = new BookDto();
+
+        HttpStatus httpStatus = bookRepository.findByIsbn(isbn).isPresent() ? HttpStatus.OK : HttpStatus.CREATED;
+        bookDto = iOpenLibraryService.bookInfo(isbn);
+        return new ResponseEntity<>(bookDto, httpStatus);
     }
 }
