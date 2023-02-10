@@ -8,11 +8,9 @@ import com.wolox.training.models.Book;
 import com.wolox.training.repositories.BookRepository;
 import com.wolox.training.services.IOpenLibraryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -22,55 +20,56 @@ import java.util.Optional;
 @Service("OpenLibraryService")
 public class OpenLibraryService implements IOpenLibraryService {
 
-    private final WebClient webClient;
+    private WebClient webClient;
 
     @Autowired
     private BookRepository bookRepository;
 
-    public OpenLibraryService(WebClient.Builder builder) {
-        webClient = builder.baseUrl("https://openlibrary.org/").build();
-    }
-
-
+    /**
+     * Find an external api for the requested book
+     * @param isbn is the key to the search
+     * @return return a BookDto with the loaded data
+     * @throws BookNotFoundException when the book was not found
+     */
     public BookDto getBookByIsbn(String isbn) throws BookNotFoundException{
         String url = "books/"+isbn+".json";
+         webClient = WebClient.builder()
+                .baseUrl("https://openlibrary.org/")
+                .build();
 
-        try {
             BookDto dto = webClient
                     .get()
                     .uri(url)
                     .retrieve()
+                    .onStatus(s -> s.equals(HttpStatus.NOT_FOUND), (e) -> Mono.error(new BookNotFoundException()))
                     .bodyToMono(BookDto.class).block();
             dto.setIsbn(isbn);
             List<AuthorDto> authorDtos = dto.getAuthors();
             authorDtos.forEach(author -> author.setName(getAuthosrByKey(author.getUrl()).getName()));
             dto.setAuthors(authorDtos);
             return dto;
-        }  catch (WebClientResponseException wcre) {
 
-            throw new BookNotFoundException();
-        } catch (Exception ex) {
-            throw new BookNotFoundException();
-        }
 
     }
 
+    /**
+     * Find an external API for the requested author
+     * @param key is the key to the search
+     * @return return a AuthorDto with the loaded data
+     */
     public AuthorDto getAuthosrByKey(String key) {
+         webClient = WebClient.builder()
+                .baseUrl("https://openlibrary.org/")
+                .build();
 
         String url = key + ".json";
-        try {
-            AuthorDto dto = webClient
-                    .get()
-                    .uri(url)
-                    .retrieve()
-                    .bodyToMono(AuthorDto.class).block();
+        AuthorDto dto = webClient
+                .get()
+                .uri(url)
+                .retrieve()
+                .onStatus(s -> s.equals(HttpStatus.NOT_FOUND), (e) -> Mono.error(new BookNotFoundException()))
+                .bodyToMono(AuthorDto.class).block();
             return dto;
-        }  catch (WebClientResponseException wcre) {
-
-            throw new BookNotFoundException();
-        } catch (Exception ex) {
-            throw new BookNotFoundException();
-        }
     }
 
     public BookDto passageBookToDto(Book book) {
@@ -110,6 +109,11 @@ public class OpenLibraryService implements IOpenLibraryService {
         return book;
     }
 
+    /**
+     * Finds a requested book, if it is not in the database it finds it in an external API saving it in the database
+     * @param isbn is the key to the search
+     * @return return a BookDto with the loaded data
+     */
     @Override
     public BookDto bookInfo(String isbn) {
         BookDto dto = new BookDto();

@@ -22,8 +22,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.Optional;
-
 @Controller
 @RequestMapping("/api/books")
 public class BookController {
@@ -100,15 +98,19 @@ public class BookController {
         return "greeting";
     }
 
+    /**
+     * Finds a requested book if it is not in the database finds for it in an external api
+     * @param isbn is the key to the search
+     * @return return a BookDto with the loaded data and If it finds it in the database, it sends in ok.
+     *         If it does not find it, looks for it in an external api, returns a bookdto and created code.
+     *         If it does not find it returns not found.
+     */
     @GetMapping("/isbn={isbn}")
     public ResponseEntity<Object> findByIsbn(@PathVariable String isbn) {
         BookDto bookDto = new BookDto();
-        if( bookRepository.findByIsbn(isbn).isPresent()){
-            bookDto = iOpenLibraryService.bookInfo(isbn);
-            return new ResponseEntity<>(bookDto, HttpStatus.OK);
-        }else{
-            bookDto = iOpenLibraryService.bookInfo(isbn);
-            return new ResponseEntity<>(bookDto, HttpStatus.CREATED);
-        }
+
+        HttpStatus httpStatus = bookRepository.findByIsbn(isbn).isPresent() ? HttpStatus.OK : HttpStatus.CREATED;
+        bookDto = iOpenLibraryService.bookInfo(isbn);
+        return new ResponseEntity<>(bookDto, httpStatus);
     }
 }

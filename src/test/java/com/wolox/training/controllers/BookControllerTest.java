@@ -1,38 +1,29 @@
 package com.wolox.training.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wolox.training.dtos.AuthorDto;
+import com.wolox.training.dtos.BookDto;
+import com.wolox.training.dtos.PublishersDto;
 import com.wolox.training.exceptions.BookNotFoundException;
-import com.wolox.training.exceptions.BookRepeatedTitleException;
 import com.wolox.training.models.Book;
-import com.wolox.training.models.User;
 import com.wolox.training.repositories.BookRepository;
-import org.junit.jupiter.api.Assertions;
+import com.wolox.training.services.IOpenLibraryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -45,6 +36,9 @@ class BookControllerTest {
     @MockBean
     private BookRepository bookRepository;
 
+    @MockBean
+    private IOpenLibraryService iOpenLibraryService;
+
     @Autowired
     private MockMvc mvc;
 
@@ -52,6 +46,8 @@ class BookControllerTest {
     private ObjectMapper objectMapper;
 
     private Book book;
+
+    private BookDto bookDto;
 
     @BeforeEach
     void setUp(){
@@ -61,6 +57,12 @@ class BookControllerTest {
         publishers.add("Viking");
         book =  new Book("Terror", authors, "abcd", "IT", "Tu tambien flotaras",
                 publishers, "1986", 1504, "abcd");
+
+        List<AuthorDto> authorsDto = new ArrayList<AuthorDto>();
+        authorsDto.add(new AuthorDto("Stephen King"));
+        List<PublishersDto> publishersDto = new ArrayList<PublishersDto>();
+        publishersDto.add(new PublishersDto("Viking"));
+        bookDto =  new BookDto( "OL7440033M", "IT", "Tu tambien flotaras",publishersDto, "1986" , 1504, authorsDto);
     }
 
     @DisplayName("whenTheEndpointIsExecutedCreate_ReturnCreate")
@@ -141,4 +143,42 @@ class BookControllerTest {
                 .andExpect(jsonPath("$.authors").value(book.getAuthors()))
                 .andDo(print());
     }
+
+    @DisplayName("sinceTheBookIsInTheDb_whenTheEndpointIsExecutedFindByIsbn_thenReturnOkAndBook")
+    @Test
+    void findByIsbn() throws Exception {
+        String isbn = "OL7440033M";
+        when(iOpenLibraryService.bookInfo(isbn)).thenReturn(bookDto);
+        when(bookRepository.findByIsbn(isbn)).thenReturn(Optional.of(book));
+        mvc.perform(MockMvcRequestBuilders.get("/api/books/isbn={isbn}", isbn))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value(bookDto.getTitle()))
+                .andExpect(jsonPath("$.isbn").value(isbn))
+                .andDo(print());
+    }
+
+    @DisplayName("sinceTheBookIsNotInTheDb_whenTheEndpointIsExecutedFindByIsbn_thenReturnCreateAndBook")
+    @Test
+    void findByIsbnExternal() throws Exception {
+        String isbn = "OL7440033M";
+        when(iOpenLibraryService.bookInfo(isbn)).thenReturn(bookDto);
+        when(bookRepository.findByIsbn(isbn)).thenReturn(Optional.empty());
+        mvc.perform(MockMvcRequestBuilders.get("/api/books/isbn={isbn}", isbn))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.title").value(bookDto.getTitle()))
+                .andExpect(jsonPath("$.isbn").value(isbn))
+                .andDo(print());
+    }
+
+    @DisplayName("NotFoundInExternalApi_whenTheEndpointIsExecutedFindByIsbn_thenReturnNotFoundAndBook")
+    @Test
+    void findByIsbnException() throws Exception {
+        String isbn = "OL7440033M";
+        when(iOpenLibraryService.bookInfo(isbn)).thenThrow(new BookNotFoundException());
+        when(bookRepository.findByIsbn(isbn)).thenReturn(Optional.empty());
+        mvc.perform(MockMvcRequestBuilders.get("/api/books/isbn={isbn}", isbn))
+                .andExpect(status().isNotFound())
+                .andDo(print());
+    }
+
 }
