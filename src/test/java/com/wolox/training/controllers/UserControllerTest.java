@@ -60,7 +60,7 @@ class UserControllerTest {
                 publishers, "1986", 1504, "abcd");
 
         List<Book> books = new ArrayList<Book>();
-        user = new User("user1", "user1",  LocalDate.of(2022,02,02), books);
+        user = new User("1234","user1", "user1",  LocalDate.of(2022,02,02), books);
     }
 
     @DisplayName("whenTheEndpointIsExecutedCreate_ReturnCreate")
@@ -99,7 +99,7 @@ class UserControllerTest {
     @Test
     void updateUser() throws Exception{
         long id = 1;
-        User user2 = new User("user2", "user2", LocalDate.of(2020,02,02), new ArrayList<Book>());
+        User user2 = new User("1234", "user2", "user2", LocalDate.of(2020,02,02), new ArrayList<Book>());
 
         when(userRepository.findById(id)).thenReturn(Optional. of(user));
         when(userRepository.save(any(User.class))).thenReturn(user2);
@@ -116,7 +116,7 @@ class UserControllerTest {
     @DisplayName("whenTheEndpointIsExecutedFindAll_ReturnOkAndTheNumberOfObjectsExpected")
     @Test
     void findAll() throws Exception{
-        User user2 = new User("user2", "user2", LocalDate.of(2020,02,02), new ArrayList<Book>());
+        User user2 = new User("1234", "user2", "user2", LocalDate.of(2020,02,02), new ArrayList<Book>());
         List<User> users = new ArrayList<>(Arrays.asList(user, user2));
 
         when(userRepository.findAll()).thenReturn(users);

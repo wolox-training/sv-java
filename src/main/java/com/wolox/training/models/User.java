@@ -1,9 +1,9 @@
 package com.wolox.training.models;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.wolox.training.exceptions.BookAlreadyOwnedException;
 import com.wolox.training.exceptions.BookNotFoundException;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -16,6 +16,10 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -55,14 +59,50 @@ public class User {
     @ManyToMany(cascade= {CascadeType.REFRESH, CascadeType.MERGE} ,fetch= FetchType.LAZY)
     private List<Book> books;
 
+    @JsonProperty("role_name")
+    @Column(name="role_name", nullable = false)
+    @NotNull
+    private String roleName;
+
+    @Schema(name ="password")
+    @Column(nullable = false)
+    @NotBlank
+    private String password;
+
     public User() {
     }
 
-    public User(String username, String name, LocalDate birthdate, List<Book> books) {
+    public User(String username, String name, LocalDate birthdate, List<Book> books, String roleName, String password) {
         this.username = username;
         this.name = name;
         this.birthdate = birthdate;
         this.books = books;
+        this.roleName = roleName;
+        this.password = password;
+    }
+
+    public User(String password, String username, String name, LocalDate birthdate, List<Book> books) {
+        this.password = password;
+        this.username = username;
+        this.name = name;
+        this.birthdate = birthdate;
+        this.books = books;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public void setRoleName(String role) {
+        this.roleName = role;
     }
 
     public long getId() {

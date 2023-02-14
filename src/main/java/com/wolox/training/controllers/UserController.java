@@ -7,7 +7,6 @@ import com.wolox.training.models.Book;
 import com.wolox.training.models.User;
 import com.wolox.training.repositories.BookRepository;
 import com.wolox.training.repositories.UserRepository;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -15,6 +14,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,6 +36,9 @@ public class UserController {
     @Autowired
     private BookRepository bookRepository;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
     /**
      * save the received user
      * @param user user to be saved
@@ -52,6 +55,8 @@ public class UserController {
         if(userRepository.findByUsername(user.getUsername()).isPresent()){
             throw new UserUsernameRepeatedException();
         }
+        String password = user.getPassword();
+        user.setPassword(passwordEncoder.encode(password));
         return new ResponseEntity<>( userRepository.save(user), HttpStatus.CREATED);
     }
 
