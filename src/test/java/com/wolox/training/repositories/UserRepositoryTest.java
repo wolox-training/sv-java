@@ -24,7 +24,7 @@ class UserRepositoryTest {
     @BeforeEach
     void setUp(){
         List<Book> books = new ArrayList<Book>();
-        user = new User("user1", "user1", LocalDate.of(2022,02,02), books);
+        user = new User("1234", "user1", "user1", LocalDate.of(2022,02,02), books);
         userRepository.save(user);
     }
 
@@ -32,7 +32,7 @@ class UserRepositoryTest {
     @Test
     void save() {
         List<Book> books = new ArrayList<Book>();
-        User saveUser = new User("user2", "user2", LocalDate.of(2020,02,02), books);
+        User saveUser = new User("1234","user2", "user2", LocalDate.of(2020,02,02), books);
 
         User savedUser = userRepository.save(saveUser);
         Optional<User> userById = userRepository.findById(savedUser.getId());
