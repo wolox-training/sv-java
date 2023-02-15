@@ -10,9 +10,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -31,8 +33,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@AutoConfigureMockMvc(addFilters = false)
 @WebMvcTest(controllers = UserController.class)
 class UserControllerTest {
+
+    @InjectMocks
+   UserController userController;
+
+    @MockBean
+    PasswordEncoder passwordEncoder;
 
     @MockBean
     private UserRepository userRepository;
@@ -66,11 +75,11 @@ class UserControllerTest {
     @DisplayName("whenTheEndpointIsExecutedCreate_ReturnCreate")
     @Test
     void create() throws Exception{
-       when(userRepository.save(user)).thenReturn(user);
-       mvc.perform(MockMvcRequestBuilders.post("/api/users").contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(user)))
-               .andExpect(status().isCreated())
-               .andDo(print());
+        when(userRepository.save(user)).thenReturn(user);
+        mvc.perform(MockMvcRequestBuilders.post("/api/users").contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(user)))
+                .andExpect(status().isCreated())
+                .andDo(print());
     }
 
     @DisplayName("whenTheEndpointIsExecutedDelete_ReturnOk")
@@ -79,7 +88,7 @@ class UserControllerTest {
         long id = 1;
         when(userRepository.findById(id)).thenReturn(Optional. of(user));
         mvc.perform(MockMvcRequestBuilders.delete("/api/users/{id}", id).contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(user)))
+                        .content(objectMapper.writeValueAsString(user)))
                 .andExpect(status().isOk())
                 .andDo(print());
     }
@@ -104,7 +113,7 @@ class UserControllerTest {
         when(userRepository.findById(id)).thenReturn(Optional. of(user));
         when(userRepository.save(any(User.class))).thenReturn(user2);
         mvc.perform(MockMvcRequestBuilders.put("/api/users/{id}", id).contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(user)))
+                        .content(objectMapper.writeValueAsString(user)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(user2.getName()))
                 .andExpect(jsonPath("$.username").value(user2.getUsername()))
@@ -151,7 +160,7 @@ class UserControllerTest {
         when(userRepository.save(user)).thenReturn(user);
 
         mvc.perform(MockMvcRequestBuilders.post("/api/users/addbook/{id}", id).contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(book)))
+                        .content(objectMapper.writeValueAsString(book)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.books[0].title").value(book.getTitle()))
                 .andExpect(jsonPath("$.books[0].pages").value(book.getPages()))
@@ -170,7 +179,7 @@ class UserControllerTest {
         when(userRepository.save(user)).thenReturn(user);
 
         mvc.perform(MockMvcRequestBuilders.post("/api/users/removebook/{id}", id).contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(book)))
+                        .content(objectMapper.writeValueAsString(book)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.books.size()").value(user.getBooks().size()))
                 .andDo(print());
