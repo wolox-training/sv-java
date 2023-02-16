@@ -54,4 +54,18 @@ class UserRepositoryTest {
         Optional<User> savedUser = userRepository.findById(id);
         Assertions.assertEquals(user.getName(), savedUser.get().getName());
     }
+
+    @DisplayName("whenExecutedFindByBirthdayBetweenDatesAndCharactersInName_returnsUsersThatMatchTheParameters")
+    @Test
+    void findByBirthdayBetweenDatesAndCharactersInName(){
+        User user2 = new User("user2", "Name", LocalDate.of(2023,02,02),new ArrayList<Book>(), "USER", "1234");
+        userRepository.save(user2);
+
+        String name = "name";
+        LocalDate date1 = LocalDate.of(1987,01,01);
+        LocalDate date2 = LocalDate.of(2024,01,01);
+        List<User> users = userRepository.findByBirthdayBetweenDatesAndCharactersInName(name,date1, date2);
+        Assertions.assertEquals(1, users.size());
+
+    }
 }
