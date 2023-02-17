@@ -1,12 +1,14 @@
 package com.wolox.training.repositories;
 
 import com.wolox.training.models.Book;
+import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.repository.query.Param;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +31,17 @@ class BookRepositoryTest {
         book =  new Book("Terror", authors, "abcd", "IT", "Tu tambien flotaras",
                 publishers, "1986", 1504, "abcd");
         bookRepository.save(book);
+
+        Book savebook2 =  new Book("Terror", authors, "abcd", "IT3", "subtitle",
+                publishers, "2023", 1000, "abcd");
+        Book savebook3 =  new Book("Terror", authors, "abcd", "IT4", "Tu tambien flotaras",
+                publishers, "1986", 1504, "abcd");
+        Book savedBook2 =  bookRepository.save(savebook2);
+        Book savedBook3 =  bookRepository.save(savebook3);
+        List<Book> books = new ArrayList<Book>();
+        books.add(savedBook2);
+        books.add(savedBook3);
+        books.add(book);
     }
 
     @DisplayName("whenExecutedSave_savesTheBookAndGeneratesItsId")
@@ -63,6 +76,18 @@ class BookRepositoryTest {
         Optional<Book> savedBook = bookRepository.findById(id);
         Assertions.assertEquals(book.getGenre(), savedBook.get().getGenre());
     }
+
+    @DisplayName("whenExecutedFindByEditorialPublisherAndGenreAndYears_returnsTheBooksThatMatchTheParameters")
+    @Test
+    void findByEditorialPublisherAndGenreAndYears(){
+        String genre = "Terror";
+        String publisher = "Viking";
+        String years = "1986";
+        List<Book> books = bookRepository.findByPublisherAndGenreAndYears(publisher, genre, years);
+        Assertions.assertEquals(2, books.size());
+
+    }
+
 
 
 }
