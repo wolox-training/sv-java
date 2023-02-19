@@ -22,4 +22,11 @@ public interface BookRepository extends CrudRepository<Book, Long> {
                                                         @Param("genre")String genre,
                                                         @Param("years")String years);
 
+
+    @Query(value = "select * from books b where (b.genre=:genre or :genre is null) and (b.years =:years or :years is null)" +
+            " and (b.publishers like %:publisher% or :publisher is null)", nativeQuery = true)
+    List<Book> findByPublisher_Genre_Years(@Param("publisher")String publisher,
+                                               @Param("genre")String genre,
+                                               @Param("years")String years);
+
 }

@@ -1,15 +1,12 @@
 package com.wolox.training.repositories;
 
 import com.wolox.training.models.Book;
-import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.data.repository.query.Param;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -88,6 +85,16 @@ class BookRepositoryTest {
 
     }
 
+
+    @DisplayName("whenExecutedFindByPublisherGenreYears_returnsTheBooksThatMatchTheParametersOrtheParametersAreNull")
+    @Test
+    void findByPublisher_Genre_Years(){
+        String genre = "Terror";
+        String years = "1986";
+        List<Book> books = bookRepository.findByPublisher_Genre_Years(null, genre, years);
+        Assertions.assertEquals(2, books.size());
+
+    }
 
 
 }
