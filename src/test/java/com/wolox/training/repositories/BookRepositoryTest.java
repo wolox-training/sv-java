@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,8 @@ class BookRepositoryTest {
 
     private Book book;
 
+    long id ;
+
     @BeforeEach
     public void setUp(){
         List<String> authors = new ArrayList<String>();
@@ -27,7 +30,7 @@ class BookRepositoryTest {
         publishers.add("Viking");
         book =  new Book("Terror", authors, "abcd", "IT", "Tu tambien flotaras",
                 publishers, "1986", 1504, "abcd");
-        bookRepository.save(book);
+        id = bookRepository.save(book).getId();
 
         Book savebook2 =  new Book("Terror", authors, "abcd", "IT3", "subtitle",
                 publishers, "2023", 1000, "abcd");
@@ -69,7 +72,7 @@ class BookRepositoryTest {
     @DisplayName("whenExecutedFindById_returnTheRequestedBook")
     @Test
     void findById(){
-        long id = 1;
+
         Optional<Book> savedBook = bookRepository.findById(id);
         Assertions.assertEquals(book.getGenre(), savedBook.get().getGenre());
     }
@@ -96,5 +99,17 @@ class BookRepositoryTest {
 
     }
 
+    @DisplayName("whenExecutedFindByPublisherGenreYearsAuthorsImageTitleSubtitlePagesIsbn_returnsTheBooksThatMatchTheParametersOrtheParametersAreNull")
+    @Test
+    void findByPublisherGenreYearsAuthorsImageTitleSubtitlePagesIsbn(){
+        String publisher  =   "viking";
+        String genre = "terror";
+        String years = "1986";
+        String pages = "1504";
+        List<Book> books = bookRepository.findByPublisherGenreYearsAuthorsImageTitleSubtitlePagesIsbn(publisher, genre, years, null, null, null,
+                null, pages, null);
+        Assertions.assertEquals(2, books.size());
+
+   }
 
 }
