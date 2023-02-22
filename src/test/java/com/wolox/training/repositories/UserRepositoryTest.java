@@ -21,11 +21,13 @@ class UserRepositoryTest {
 
     private User user;
 
+    long id;
+
     @BeforeEach
     void setUp(){
         List<Book> books = new ArrayList<Book>();
         user = new User("user1", "user1", LocalDate.of(2022,02,02), books, "USER", "1234");
-        userRepository.save(user);
+        id = userRepository.save(user).getId();
     }
 
     @DisplayName("whenExecutedSave_savesUserAndGeneratesItsId")
@@ -50,7 +52,6 @@ class UserRepositoryTest {
     @DisplayName("whenExecutedFindById_returnTheRequestedUser")
     @Test
     void findById(){
-        long id = 1;
         Optional<User> savedUser = userRepository.findById(id);
         Assertions.assertEquals(user.getName(), savedUser.get().getName());
     }
@@ -66,6 +67,34 @@ class UserRepositoryTest {
         LocalDate date2 = LocalDate.of(2024,01,01);
         List<User> users = userRepository.findByBirthdayBetweenDatesAndCharactersInName(name,date1, date2);
         Assertions.assertEquals(1, users.size());
+
+    }
+
+
+    @DisplayName("whenExecutedfindByBirthdateBetweenAndNameLikeIgnoreCase_returnsUsersThatMatchTheParameters")
+    @Test
+    void findByBirthdateBetweenAndNameLikeIgnoreCase(){
+        User user2 = new User("user2", "Name", LocalDate.of(2023,02,02),new ArrayList<Book>(), "USER", "1234");
+        userRepository.save(user2);
+
+        String name = "name";
+        LocalDate date1 = LocalDate.of(1987,01,01);
+        LocalDate date2 = LocalDate.of(2024,01,01);
+        List<User> users = userRepository.findByBirthdateBetweenAndNameLikeIgnoreCase(date1, date2,name);
+        Assertions.assertEquals(1, users.size());
+
+    }
+
+    @DisplayName("whenExecutedFindByBirthdateBetweenAndNameLikeIgnoreCaseCanSendNullParameter_returnsUsersThatMatchTheParameters")
+    @Test
+    void findByBirthdateBetweenAndNameLikeIgnoreCaseOrNull(){
+        User user2 = new User("user2", "Name", LocalDate.of(2023,02,02),new ArrayList<Book>(), "USER", "1234");
+        userRepository.save(user2);
+
+        String name = "name";
+        LocalDate date2 = LocalDate.of(2024,01,01);
+        List<User> users = userRepository.findUsersByBirthdateAndName(null, date2, name);
+        Assertions.assertEquals(2, users.size());
 
     }
 }

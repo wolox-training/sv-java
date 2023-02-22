@@ -7,6 +7,9 @@ import com.wolox.training.exceptions.BookRepeatedTitleException;
 import com.wolox.training.models.Book;
 import com.wolox.training.repositories.BookRepository;
 import com.wolox.training.services.IOpenLibraryService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +24,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/api/books")
@@ -112,5 +118,24 @@ public class BookController {
         HttpStatus httpStatus = bookRepository.findByIsbn(isbn).isPresent() ? HttpStatus.OK : HttpStatus.CREATED;
         bookDto = iOpenLibraryService.bookInfo(isbn);
         return new ResponseEntity<>(bookDto, httpStatus);
+    }
+
+    @Operation(summary = "List all books by parameters, can receive null parameters")
+    @ApiResponse(responseCode = "200", description = "All books successfully", content = @Content)
+    @GetMapping("/getall/")
+    public ResponseEntity<Object> getAll(@RequestParam Map<String,String> allParams) {
+
+        String publisher  =  allParams.get("publishers") ;
+        String genre = allParams.get("genre");
+        String years = allParams.get("years");
+        String authors = allParams.get("authors");
+        String image = allParams.get("image");
+        String title = allParams.get("title");
+        String subtitle = allParams.get("subtitle");
+        String pages = allParams.get("pages");
+        String isbn = allParams.get("isbn");
+        List<Book> books = bookRepository.findByPublisherGenreYearsAuthorsImageTitleSubtitlePagesIsbn(publisher, genre, years, authors, image, title,
+       subtitle, pages, isbn);
+        return new ResponseEntity<>( books, HttpStatus.OK);
     }
 }

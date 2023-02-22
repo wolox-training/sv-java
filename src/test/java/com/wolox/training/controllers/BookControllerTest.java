@@ -21,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -183,4 +184,28 @@ class BookControllerTest {
                 .andDo(print());
     }
 
+
+    @DisplayName("whenTheEndpointIsGetAllWithTheParametersToBeFetchedAndTheRestLoadedNull _ returnsTheBooksMatch")
+    @Test
+    void getAll() throws Exception{
+
+        String publishers  = "Viking";
+        String genre = "Terror";
+        String years = "1986";
+        String pages = "1504";
+        List<Book> books = new ArrayList<>();
+        books.add(book);
+
+        when(bookRepository.findByPublisherGenreYearsAuthorsImageTitleSubtitlePagesIsbn(publishers, genre, years, null, null, null,
+                null, pages, null)).thenReturn(books);
+        mvc.perform(MockMvcRequestBuilders.get("/api/books/getall/")
+                        .param("publishers",publishers)
+                        .param("genre", genre)
+                        .param("years", years)
+                        .param("pages", pages))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.size()").value(books.size()))
+                .andDo(print());
+
+    }
 }
