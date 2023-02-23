@@ -102,7 +102,7 @@ class BookRepositoryTest {
         Assertions.assertEquals(2, books.size());
 
     }
-    
+
     @DisplayName("whenExecutedFindByPublisherGenreYearsAuthorsImageTitleSubtitlePagesIsbn_returnsPaginatedBooksThatMatchTheParametersOrtheParametersAreNull")
     @Test
     void findByPublisherGenreYearsAuthorsImageTitleSubtitlePagesIsbn(){
