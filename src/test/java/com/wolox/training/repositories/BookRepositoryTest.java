@@ -7,6 +7,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,17 +102,18 @@ class BookRepositoryTest {
         Assertions.assertEquals(2, books.size());
 
     }
-
-    @DisplayName("whenExecutedFindByPublisherGenreYearsAuthorsImageTitleSubtitlePagesIsbn_returnsTheBooksThatMatchTheParametersOrtheParametersAreNull")
+    
+    @DisplayName("whenExecutedFindByPublisherGenreYearsAuthorsImageTitleSubtitlePagesIsbn_returnsPaginatedBooksThatMatchTheParametersOrtheParametersAreNull")
     @Test
     void findByPublisherGenreYearsAuthorsImageTitleSubtitlePagesIsbn(){
         String publisher  =   "viking";
         String genre = "terror";
         String years = "1986";
         String pages = "1504";
-        List<Book> books = bookRepository.findByPublisherGenreYearsAuthorsImageTitleSubtitlePagesIsbn(publisher, genre, years, null, null, null,
-                null, pages, null);
-        Assertions.assertEquals(2, books.size());
+        Pageable pageable = PageRequest.of(0, 2, Sort.by("title"));
+        Page<Book> books = bookRepository.findByPublisherGenreYearsAuthorsImageTitleSubtitlePagesIsbn(publisher, genre, years, null, null, null,
+                null, pages, null, pageable);
+        Assertions.assertEquals(2, books.getTotalElements());
 
    }
 

@@ -11,10 +11,16 @@ import com.wolox.training.services.IOpenLibraryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,6 +33,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -188,24 +195,24 @@ class BookControllerTest {
     @DisplayName("whenTheEndpointIsGetAllWithTheParametersToBeFetchedAndTheRestLoadedNull _ returnsTheBooksMatch")
     @Test
     void getAll() throws Exception{
-
         String publishers  = "Viking";
         String genre = "Terror";
-        String years = "1986";
-        String pages = "1504";
-        List<Book> books = new ArrayList<>();
-        books.add(book);
+        String sort = "id";
 
-        when(bookRepository.findByPublisherGenreYearsAuthorsImageTitleSubtitlePagesIsbn(publishers, genre, years, null, null, null,
-                null, pages, null)).thenReturn(books);
+        Pageable pageable = PageRequest.of(0, 20, Sort.by(sort));
+
+        List<Book> bookList = new ArrayList<>();
+        bookList.add(book);
+        Page<Book> page = new PageImpl<>(bookList, pageable, bookList.size());
+
+        when(bookRepository.findByPublisherGenreYearsAuthorsImageTitleSubtitlePagesIsbn(publishers, genre, null, null, null, null,
+                null, null, null, pageable)).thenReturn(page);
         mvc.perform(MockMvcRequestBuilders.get("/api/books/getall/")
                         .param("publishers",publishers)
                         .param("genre", genre)
-                        .param("years", years)
-                        .param("pages", pages))
+                        .param("sort",sort))
+                .andExpect(jsonPath("$.totalElements").value(page.getTotalElements()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(books.size()))
                 .andDo(print());
-
     }
 }

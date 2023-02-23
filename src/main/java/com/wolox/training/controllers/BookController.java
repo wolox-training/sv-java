@@ -11,6 +11,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -120,10 +126,19 @@ public class BookController {
         return new ResponseEntity<>(bookDto, httpStatus);
     }
 
+    /**
+     * Searches for a list of books with the specified parameters and can be null,
+     * the pagination data is by default and can be modified
+     * @param allParams contains the parameters for the search in the database
+     * @param pageable contains the parameters to perform the pagination
+     * @return a Page with the list of books
+     */
     @Operation(summary = "List all books by parameters, can receive null parameters")
     @ApiResponse(responseCode = "200", description = "All books successfully", content = @Content)
     @GetMapping("/getall/")
-    public ResponseEntity<Object> getAll(@RequestParam Map<String,String> allParams) {
+    public ResponseEntity<Object> getAll(@RequestParam Map<String,String> allParams, @PageableDefault(page = 0, size = 20)
+    @SortDefault.SortDefaults({@SortDefault(sort = "title", direction = Sort.Direction.ASC)})
+            Pageable pageable){
 
         String publisher  =  allParams.get("publishers") ;
         String genre = allParams.get("genre");
@@ -134,8 +149,14 @@ public class BookController {
         String subtitle = allParams.get("subtitle");
         String pages = allParams.get("pages");
         String isbn = allParams.get("isbn");
-        List<Book> books = bookRepository.findByPublisherGenreYearsAuthorsImageTitleSubtitlePagesIsbn(publisher, genre, years, authors, image, title,
-       subtitle, pages, isbn);
+
+        Page<Book> books = bookRepository.findByPublisherGenreYearsAuthorsImageTitleSubtitlePagesIsbn(publisher, genre, years, authors, image, title,
+        subtitle, pages, isbn, pageable);
+
+        if(books.getContent().isEmpty()){
+            throw new BookNotFoundException();
+        }
+
         return new ResponseEntity<>( books, HttpStatus.OK);
     }
 }
