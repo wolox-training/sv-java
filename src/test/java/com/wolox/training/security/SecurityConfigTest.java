@@ -4,7 +4,6 @@ import com.wolox.training.controllers.UserController;
 import com.wolox.training.models.Book;
 import com.wolox.training.models.User;
 import com.wolox.training.repositories.UserRepository;
-import org.apache.logging.log4j.util.Strings;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -94,7 +93,7 @@ class SecurityConfigTest {
         Set<GrantedAuthority> authorities = new HashSet<>();
         authorities.add(new SimpleGrantedAuthority("USER"));
         UserDetails userDetailsEmpty = new org.springframework.security.core.userdetails.User("user2",
-                Strings.EMPTY, authorities);
+                "", authorities);
 
         when(userDetailsServiceImpl.loadUserByUsername(any())).thenReturn(userDetailsEmpty);
         this.mock
