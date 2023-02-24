@@ -34,6 +34,9 @@ dependencies {
 	testImplementation 'com.github.tomakehurst:wiremock-standalone:2.27.2'
 	testImplementation 'org.slf4j:slf4j-simple:1.7.32'
 
+	compileOnly 'org.projectlombok:lombok:1.18.26'
+	annotationProcessor 'org.projectlombok:lombok:1.18.26'
+
 }
 tasks.named('test') {
 	useJUnitPlatform()

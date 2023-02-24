@@ -16,6 +16,12 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 import java.time.LocalDate;
@@ -28,10 +34,15 @@ import java.util.List;
  * @version 1.0
  */
 @Schema(description = "user with their book list")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Getter
 @Entity
 @Table(name = "users")
 public class User {
-
+    @Setter(AccessLevel.NONE)
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -52,6 +63,7 @@ public class User {
     @NotNull
     private LocalDate birthdate;
 
+    @Getter(AccessLevel.NONE)
     @Schema(name ="books")
     @ManyToMany(cascade= {CascadeType.REFRESH, CascadeType.MERGE} ,fetch= FetchType.LAZY)
     private List<Book> books;
@@ -65,9 +77,6 @@ public class User {
     @Column(nullable = false)
     @NotBlank
     private String password;
-
-    public User() {
-    }
 
     public User(String username, String name, LocalDate birthdate, List<Book> books, String roleName, String password) {
         this.username = username;
@@ -84,50 +93,6 @@ public class User {
         this.name = name;
         this.birthdate = birthdate;
         this.books = books;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getRoleName() {
-        return roleName;
-    }
-
-    public void setRoleName(String role) {
-        this.roleName = role;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public LocalDate getBirthdate() {
-        return birthdate;
-    }
-
-    public void setBirthdate(LocalDate birthdate) {
-        this.birthdate = birthdate;
     }
 
     public List<Book> getBooks() {

@@ -1,31 +1,20 @@
 package com.wolox.training.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Setter
+@Getter
 public class PublishersDto {
 
     @JsonProperty("name")
     private String name;
 
-    public PublishersDto() {
-    }
-
-    public PublishersDto(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
-    public String toString() {
-        return "PublishersDto{" +
-                "name='" + name + '\'' +
-                '}';
-    }
 }
