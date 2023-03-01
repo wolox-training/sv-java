@@ -41,7 +41,7 @@ import java.util.List;
 @AllArgsConstructor
 @Setter
 @Getter
-@Inheritance(strategy= InheritanceType.SINGLE_TABLE)
+@Inheritance(strategy= InheritanceType.JOINED)
 @Entity
 @Table(name = "users")
 public class User {

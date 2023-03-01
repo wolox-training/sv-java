@@ -121,17 +121,17 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "All users successfully", content = @Content)
     @GetMapping
     public ResponseEntity<Object> findAll() {
-       // List<Object> users = new ArrayList<>();
-       /* userRepository.findAll().forEach(user -> {
-            if(user instanceof Teacher){
-                users.add((Teacher)user);
-            }else{
-                users.add((Student)user);
-            }
-        });*/
-
-        //falta ***************************************************
-        return new ResponseEntity<>( , HttpStatus.OK);
+        List<Object> users = new ArrayList<>();
+        userRepository.findAll().forEach(user -> {
+                    if (user instanceof Teacher) {
+                        user.setUserType("Teacher");
+                        users.add((Teacher) user);
+                    } else {
+                        users.add((Student) user);
+                        user.setUserType("Student");
+                    }
+                });
+        return new ResponseEntity<>( users, HttpStatus.OK);
     }
 
     @Operation(summary = "Find a user identified by id")
