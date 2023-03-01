@@ -12,6 +12,8 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
@@ -39,6 +41,7 @@ import java.util.List;
 @AllArgsConstructor
 @Setter
 @Getter
+@Inheritance(strategy= InheritanceType.SINGLE_TABLE)
 @Entity
 @Table(name = "users")
 public class User {
@@ -77,6 +80,9 @@ public class User {
     @Column(nullable = false)
     @NotBlank
     private String password;
+
+    @JsonProperty("user_type")
+    private String userType;
 
     public User(String username, String name, LocalDate birthdate, List<Book> books, String roleName, String password) {
         this.username = username;

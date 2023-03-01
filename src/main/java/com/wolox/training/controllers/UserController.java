@@ -4,6 +4,8 @@ import com.wolox.training.exceptions.BookNotFoundException;
 import com.wolox.training.exceptions.UserNotFoundException;
 import com.wolox.training.exceptions.UserUsernameRepeatedException;
 import com.wolox.training.models.Book;
+import com.wolox.training.models.Student;
+import com.wolox.training.models.Teacher;
 import com.wolox.training.models.User;
 import com.wolox.training.repositories.BookRepository;
 import com.wolox.training.repositories.UserRepository;
@@ -24,6 +26,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Controller
@@ -117,7 +121,17 @@ public class UserController {
     @ApiResponse(responseCode = "200", description = "All users successfully", content = @Content)
     @GetMapping
     public ResponseEntity<Object> findAll() {
-        return new ResponseEntity<>( userRepository.findAll(), HttpStatus.OK);
+       // List<Object> users = new ArrayList<>();
+       /* userRepository.findAll().forEach(user -> {
+            if(user instanceof Teacher){
+                users.add((Teacher)user);
+            }else{
+                users.add((Student)user);
+            }
+        });*/
+
+        //falta ***************************************************
+        return new ResponseEntity<>( , HttpStatus.OK);
     }
 
     @Operation(summary = "Find a user identified by id")
@@ -165,4 +179,7 @@ public class UserController {
         user.removeBook(removeBook);
         return new ResponseEntity<>( userRepository.save(user), HttpStatus.OK);
     }
+
+
+
 }
