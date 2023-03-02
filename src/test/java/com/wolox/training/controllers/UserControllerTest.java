@@ -2,9 +2,13 @@ package com.wolox.training.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wolox.training.models.Book;
+import com.wolox.training.models.Student;
+import com.wolox.training.models.Teacher;
 import com.wolox.training.models.User;
 import com.wolox.training.repositories.BookRepository;
 import com.wolox.training.repositories.UserRepository;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -125,8 +129,11 @@ class UserControllerTest {
     @DisplayName("whenTheEndpointIsExecutedFindAll_ReturnOkAndTheNumberOfObjectsExpected")
     @Test
     void findAll() throws Exception{
-        User user2 = new User("1234", "user2", "user2", LocalDate.of(2020,02,02), new ArrayList<Book>());
-        List<User> users = new ArrayList<>(Arrays.asList(user, user2));
+        Teacher teacher = new Teacher( "user2", "user2",  LocalDate.of(1976,02,02),
+                new ArrayList<Book>(), "ADMIN", "1234","Math");
+        Student student = new Student( "user", "user",  LocalDate.of(2020,02,02),
+                new ArrayList<Book>(), "USER", "1234",3);
+        List<User> users = new ArrayList<>(Arrays.asList(student, teacher));
 
         when(userRepository.findAll()).thenReturn(users);
         MultiValueMap<String, String> paramsMap = new LinkedMultiValueMap<>();
